@@ -89,9 +89,11 @@ Stand and the call on this Mac, the other person truly remote, as on 2026-11-11.
 
 ## 5. On the other Mac
 
-`mac/dist/Stand-<date>.dmg`, the newest. Open Anyway once, paste the Gemini key, allow the two permissions.
+Download `Stand-0.1.0.dmg` from the release at github.com/noteling/stand/releases. It is a draft until you have tried it, so sign in to GitHub to see it. Paste the Gemini key, allow the two permissions. This is the first build Apple has checked, and nobody has yet run Stand under the signature a download carries.
 
+- Does macOS open it with a double click, with no "Open Anyway"?
 - Does it start, talk and hear? Does the panel say the brain was found (Claude Code signed in there)?
+- On this Mac instead of another: it works too, but macOS asks for the two permissions again, and afterwards the repo's build has to be allowed again.
 - If anything goes wrong: Stand menu, Make a Problem Report, and send the zip.
 
 ## Decisions waiting for you
@@ -99,11 +101,12 @@ Stand and the call on this Mac, the other person truly remote, as on 2026-11-11.
 - Should Stand say what it hears? Its voice model hears a laugh, and a change of speaker, most of the time, and Stand's role makes it answer that it cannot say (1 run of 10, against 8 with a plain role). One line in the role would let it. It is not in: nobody has run the scripts that would show whether Stand then starts remarking on sounds unasked, and whether it takes a laugh better in a talk. Say the word and I will run them (about $3) and put it in if they hold.
 
 - May `--rehearse --out-loud` be run when you are not at the Mac?
-- Notarizing: the two steps in the README make a DMG that opens with a double click.
 - The name. "Stand" at the head of a sentence is fragile for a machine to hear. Stand could answer to a second name of your choosing in a meeting (the brief can already say "they call you Echo here").
 
 ## Decided
 
+- What a downloaded Stand may reach (2026-11-14): it starts out cautious. It looks in the notes and folders it is given and searches the web; before anything else it asks in the panel; and the person's Claude Code setup stays out. Anyone who speaks in a meeting can ask Stand things, and other people now get the app. I recommended this and you said to continue. **Your own Mac is unchanged**: its `brain.json` says `"ask": "irreversible"` and `"claudeCodeSetup": true`, which is "ask as little as possible". To make that the default for everybody again, it is one line each in `mac/Resources/brain.default.json` and `BrainSettings`.
+- A first version to download (2026-11-14): 0.1.0, as a pre-release, checked by Apple. You made the Apple login for it (`stand-notary`).
 - Open source (2026-11-14): Stand is public at `github.com/noteling/stand`, under Apache 2.0, as Noteling is. You asked what staying closed was worth, and the answer was little. What is yours stays out of it: your keys, your brief, `brain.json`, your notes, any talk Stand prepares for you, and every recording. Before step 0 with a system of your company's, nothing more is needed: the talk it prepares and the folder's path are kept out by the ignore rules.
 - Your own voice (2026-11-13): not yet. Google does not let its live model copy a voice on a key such as Stand's. Converting Stand's voice on this Mac as it speaks is possible and untried; you said "not worth it yet". What was found is in `docs/own-voice.md`, with a first try that would take about half a day and nothing from you until the listening.
 - What Stand's voice remembers (2026-11-13): the last three minutes word for word, your choice once you had the cost (about 2 cents a turn; five minutes is about 3, ten about 5.5). Its brain keeps the rest and feeds it in: in a talk, where the talk stands, what was asked and answered, and what Stand owes. `STAND_REMEMBER_MINUTES=5` in front of the command tries another length.

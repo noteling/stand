@@ -9,7 +9,7 @@
   "sources": [],
   "web": true,
   "mcpConfig": "",
-  "claudeCodeSetup": true,
-  "ask": "irreversible",
+  "claudeCodeSetup": false,
+  "ask": "always",
   "allowWithoutAsking": []
 }

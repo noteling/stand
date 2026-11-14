@@ -6,5 +6,6 @@
       "name": "noteling"
     }
   ],
-  "claudeCodeSetup": false
+  "claudeCodeSetup": false,
+  "ask": "irreversible"
 }

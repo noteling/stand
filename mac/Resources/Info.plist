@@ -24,6 +24,8 @@
 	<string>14.2</string>
 	<key>NSAudioCaptureUsageDescription</key>
 	<string>Stand listens to the audio your Mac is playing so it can hear the other people in your call.</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 Yang Lu. Apache License 2.0.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>

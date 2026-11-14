@@ -58,15 +58,20 @@ public struct BrainSettings {
     /// relative to the repo root. Empty for none. Only the Claude Code brain uses it.
     public var mcpConfig = ""
     /// Bring this Mac's whole Claude Code setup into the brain: the MCP servers it has, and
-    /// its settings. On unless turned off. Off, the brain has only what is listed here.
-    public var claudeCodeSetup = true
-    /// When the brain asks Stand's human before it does something. The rule for this phase
-    /// is to ask as little as possible:
-    /// - "irreversible" (the default): only before a tool whose name says it sends, deletes,
-    ///   pays or the like (prompts/ask-before.txt has the words). Everything else it just does.
+    /// its settings. Off unless turned on. Whoever speaks in the meeting can ask Stand
+    /// things, and with this on its answers can come from the person's own mail, calendar
+    /// and whatever else that setup reaches. Off, the brain has only what is listed here.
+    public var claudeCodeSetup = false
+    /// When the brain asks Stand's human before it does something:
+    /// - "always" (the default): before anything beyond reading the notes, searching the
+    ///   folders it was given and searching the web.
+    /// - "irreversible": only before a tool whose name says it sends, deletes, pays or the
+    ///   like (prompts/ask-before.txt has the words). Everything else it just does. This is
+    ///   "ask as little as possible", for a person who has decided they want that.
     /// - "never": it never asks.
-    /// - "always": before anything beyond reading the notes and searching the web.
-    public var ask = "irreversible"
+    /// The defaults here are what a new copy of Stand starts with. Keep them the same as
+    /// mac/Resources/brain.default.json.
+    public var ask = "always"
     /// Tools the brain may use without asking even then, as Claude Code names them:
     /// "mcp__orders__cancel_order".
     public var allowWithoutAsking = [String]()
