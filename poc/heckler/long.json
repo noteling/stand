@@ -1,0 +1,140 @@
+{
+  "description": "A long-meeting check, about 25 minutes: the talk, then a question every minute or so. It crosses the voice model's ten-minute connection limit twice, and three questions (12, 20 and 21) can only be answered from earlier in the session.",
+  "during": [],
+  "after": [
+    {
+      "label": "question 1",
+      "voice": "Daniel",
+      "waitSeconds": 45,
+      "say": "Can it join a Zoom call today?"
+    },
+    {
+      "label": "question 2",
+      "voice": "Samantha",
+      "waitSeconds": 45,
+      "say": "My name is Henry, by the way. Please remember it."
+    },
+    {
+      "label": "question 3",
+      "voice": "Daniel",
+      "waitSeconds": 45,
+      "say": "What is Stand not?"
+    },
+    {
+      "label": "question 4",
+      "voice": "Samantha",
+      "waitSeconds": 45,
+      "say": "How much does it cost?"
+    },
+    {
+      "label": "question 5",
+      "voice": "Daniel",
+      "waitSeconds": 45,
+      "say": "Why does voice matter so much to you?"
+    },
+    {
+      "label": "question 6",
+      "voice": "Samantha",
+      "waitSeconds": 45,
+      "say": "Who made you?"
+    },
+    {
+      "label": "question 7",
+      "voice": "Daniel",
+      "waitSeconds": 45,
+      "say": "What do you mean by a character and a goal?"
+    },
+    {
+      "label": "question 8",
+      "voice": "Samantha",
+      "waitSeconds": 45,
+      "say": "Can you see my screen?"
+    },
+    {
+      "label": "question 9",
+      "voice": "Daniel",
+      "waitSeconds": 45,
+      "say": "What happens next for Stand?"
+    },
+    {
+      "label": "question 10",
+      "voice": "Samantha",
+      "waitSeconds": 45,
+      "say": "Can you tell who is speaking right now?"
+    },
+    {
+      "label": "question 11",
+      "voice": "Daniel",
+      "waitSeconds": 45,
+      "say": "Is Stand a note taker?"
+    },
+    {
+      "label": "question 12",
+      "voice": "Samantha",
+      "waitSeconds": 45,
+      "say": "What is my name?"
+    },
+    {
+      "label": "question 13",
+      "voice": "Daniel",
+      "waitSeconds": 45,
+      "say": "Where does the name Stand come from?"
+    },
+    {
+      "label": "question 14",
+      "voice": "Samantha",
+      "waitSeconds": 45,
+      "say": "What is the first test Stand has to pass?"
+    },
+    {
+      "label": "question 15",
+      "voice": "Daniel",
+      "waitSeconds": 45,
+      "say": "Does it replace the person in the meeting?"
+    },
+    {
+      "label": "question 16",
+      "voice": "Samantha",
+      "waitSeconds": 45,
+      "say": "Which voice model are you running on?"
+    },
+    {
+      "label": "question 17",
+      "voice": "Daniel",
+      "waitSeconds": 45,
+      "say": "How is Stand put together?"
+    },
+    {
+      "label": "question 18",
+      "voice": "Samantha",
+      "waitSeconds": 45,
+      "say": "What can't you do yet?"
+    },
+    {
+      "label": "question 19",
+      "voice": "Daniel",
+      "waitSeconds": 45,
+      "say": "When will it be released?"
+    },
+    {
+      "label": "question 20",
+      "voice": "Samantha",
+      "waitSeconds": 45,
+      "say": "What was the very first thing I asked you after your talk?"
+    },
+    {
+      "label": "question 21",
+      "voice": "Daniel",
+      "waitSeconds": 45,
+      "say": "And what is my name again?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "Thanks, that's all the questions we have."
+  },
+  "talkIsAtLeastSpeechSeconds": 50,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 32
+}

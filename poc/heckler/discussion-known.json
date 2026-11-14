@@ -1,0 +1,43 @@
+{
+  "description": "The brief asks Stand outright to make one thing known (the sign-up page went live on Monday) and to watch for two others. Nobody comes near any of them. Stand says the one it was asked to make known once: in the pause when the agenda is done, or at the latest when it is asked whether it has anything else. It never brings up the two it was only told to watch for. Run with STAND_CONTEXT=poc/heckler/context.",
+  "brief": "poc/heckler/prompter/brief-make-known.md",
+  "gapSeconds": 0.9,
+  "maxMinutes": 3,
+  "discussion": [
+    {
+      "voice": "Daniel",
+      "say": "Okay, two things today: the venue and the lunch order.",
+      "expect": "quiet",
+      "gapSeconds": 3,
+      "mustNotSay": "sign.?up|live"
+    },
+    {
+      "voice": "Samantha",
+      "say": "The venue is sorted. They confirmed the big hall this morning.",
+      "expect": "quiet",
+      "gapSeconds": 3,
+      "mustNotSay": "sign.?up|live"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Great. And lunch is ordered for fourteen.",
+      "gapSeconds": 3,
+      "mustNotSay": "nineteen|19|four hundred|400"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Good. Stand, anything else from you before we finish?",
+      "expect": "speaks",
+      "alsoAfterPrevious": true,
+      "mustSay": "sign.?up|live",
+      "mustNotSay": "nineteen|19|four hundred|400",
+      "replyWithinSeconds": 10,
+      "gapSeconds": 6
+    },
+    {
+      "voice": "Daniel",
+      "say": "Oh, good to know. Thanks everyone.",
+      "expect": "quiet"
+    }
+  ]
+}

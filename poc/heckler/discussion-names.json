@@ -1,0 +1,16 @@
+{
+  "description": "Is Stand's name heard? Six ways of speaking to it by name, from two voices. Each should get an answer. Run with STAND_CONTEXT=poc/heckler/context.",
+  "brief": "poc/heckler/discussion-brief.md",
+  "gapSeconds": 1.5,
+  "discussion": [
+    { "voice": "Samantha", "say": "Right, I think that covers the venue.", "expect": "quiet" },
+    { "voice": "Daniel", "say": "Stand, do you know how many people came on Tuesday?", "expect": "speaks", "replyWithinSeconds": 8 },
+    { "voice": "Samantha", "say": "Stand, what room did the pilot run in?", "expect": "speaks", "replyWithinSeconds": 8 },
+    { "voice": "Daniel", "say": "Hey Stand, when is the next rehearsal?", "expect": "speaks", "replyWithinSeconds": 8 },
+    { "voice": "Samantha", "say": "Where does your name come from, Stand?", "expect": "speaks", "replyWithinSeconds": 8 },
+    { "voice": "Daniel", "say": "I have a question for Stand. Can you join a Zoom call today?", "expect": "speaks", "replyWithinSeconds": 8 },
+    { "voice": "Samantha", "say": "Stand. Are you still with us?", "expect": "speaks", "replyWithinSeconds": 8 },
+    { "voice": "Daniel", "say": "Good. I think we are done then.", "expect": "quiet" }
+  ],
+  "maxMinutes": 5
+}

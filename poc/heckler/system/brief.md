@@ -1,0 +1,1 @@
+Introduce how Stand works inside to three engineers who are about to join the project. Ten minutes. They write Swift and have used Stand once, but have never seen the code. They want to know how the pieces fit together, what happens between someone speaking and Stand answering, and where the hard parts are.

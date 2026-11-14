@@ -1,0 +1,19 @@
+.env
+node_modules/
+poc/runs/
+poc/.cache/
+.DS_Store
+runs/
+linked/
+mac/dist/
+mac/.build-x86/
+reports/
+
+# Yours, not the project's: what you tell Stand for one meeting, where its notes are and
+# what its brain may reach, and the notes themselves. Without a brain.json the settings
+# are the ones in mac/Resources/brain.default.json. The talks Stand prepares are kept out
+# by talks/.gitignore.
+/brief.md
+/brain.json
+/context/*
+!/context/README.md

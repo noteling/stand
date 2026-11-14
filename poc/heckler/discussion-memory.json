@@ -1,0 +1,124 @@
+{
+  "description": "Does Stand remember the start of a meeting? Three things are said in the first half minute, then three and a half minutes of other talk, then Stand is asked about the three things. Run it with a small memory (--context-tokens 6500 --context-keeps 5000), so that the start is certainly gone from what the voice model keeps word for word: Stand can then only answer from the sheet its prompter keeps for it. With --no-prompter there is no sheet, to compare. Run with STAND_CONTEXT=poc/heckler/context.",
+  "brief": "poc/heckler/discussion-brief.md",
+  "gapSeconds": 0.5,
+  "discussion": [
+    {
+      "voice": "Karen",
+      "say": "Before we start, one piece of news. The budget for the spring programme is forty thousand dollars. That was confirmed yesterday.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Good. And I spoke to the venue. The Juniper room has a new projector, but the microphones are broken until December.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Then I will take that on. I will find two handheld microphones by Friday.",
+      "expect": "quiet",
+      "gapSeconds": 2
+    },
+    {
+      "voice": "Daniel",
+      "say": "Let me read you some of the feedback from Tuesday, because I think it tells us what to change. The first form says the session was useful but too fast in the second half, and that the examples were the best part of the whole afternoon.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "That matches what I saw in the room. People were writing things down during the examples and then putting their pens away when we went back to the slides, so I would cut some slides and add two more examples.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "The second form says the room was too warm after lunch and that it was hard to see the screen from the back row, which is a fair point, and something we can fix by moving the chairs forward and closing the blinds.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "I can take the chairs. If we set out three rows of five and leave the back of the room empty, nobody sits further than six metres from the screen, and it also makes the room feel fuller than it did last time.",
+      "expect": "quiet",
+      "gapSeconds": 2
+    },
+    {
+      "voice": "Samantha",
+      "say": "The third form is the long one. This person wants handouts they can keep, a list of the tools we mentioned, and a way to ask questions afterwards, perhaps a shared document that stays open for a week after the session.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "A shared document is easy. I will set one up the day before and put the link on the last slide, and I will check it every morning that week, so that nobody waits more than a day for an answer to what they asked.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "On the handouts, the printer wants the files two days ahead, and they charge more for colour, so I suggest black and white with one colour page for the diagram, which is the only thing that really needs it.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Agreed. And the fourth form only says thank you and asks when the next one is, which I will take as a good sign, although it would be nice if people wrote a little more than one line.",
+      "expect": "quiet",
+      "gapSeconds": 2
+    },
+    {
+      "voice": "Daniel",
+      "say": "The fifth form complains about parking. Apparently the car park was full by nine and two people had to leave their cars on the street, so next time we should tell everyone in the invitation to come by train if they can.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "I will add a line about the train and a small map from the station, because it is only a ten minute walk and most people do not know that, and I will also ask the front desk to keep three spaces free for the presenters.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "The sixth and seventh forms both ask for a longer break, and I think they are right, fifteen minutes was not enough for fourteen people to get coffee, so let us make it twenty five minutes and start a little earlier.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Starting earlier is fine for me. If we begin at half past nine and break at eleven, we still finish before one, and the room is free until two in any case, so there is no pressure at the end.",
+      "expect": "quiet",
+      "gapSeconds": 2
+    },
+    {
+      "voice": "Karen",
+      "say": "Then the last forms are about the content. Two people wanted more on how to get started on their own, and one person wanted less history and more practice, which I think means dropping the first ten minutes of background.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "I would keep five minutes of background, not ten, and put the saved time into a short exercise that people do in pairs, because the pairs were what people talked about on the way out of the room on Tuesday.",
+      "expect": "quiet",
+      "gapSeconds": 2.5
+    },
+    {
+      "voice": "Daniel",
+      "say": "Stand, remind us. What did Karen say the budget for the spring programme was?",
+      "expect": "speaks",
+      "mustSay": "forty thousand|40,000|40 thousand|40000",
+      "replyWithinSeconds": 10
+    },
+    {
+      "voice": "Samantha",
+      "say": "And Stand, what did I say I would do by Friday?",
+      "expect": "speaks",
+      "mustSay": "microphone",
+      "replyWithinSeconds": 10
+    },
+    {
+      "voice": "Karen",
+      "say": "Stand, what is wrong with the Juniper room at the moment?",
+      "expect": "speaks",
+      "mustSay": "microphone",
+      "replyWithinSeconds": 10
+    },
+    {
+      "voice": "Daniel",
+      "say": "Thank you. That is everything.",
+      "expect": "quiet"
+    }
+  ],
+  "maxMinutes": 9
+}

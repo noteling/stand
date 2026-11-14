@@ -1,0 +1,7 @@
+[notes-inline] The notes, which are all under "The notes" below.
+[notes-files] The notes, which are the Markdown and text files in the folders listed under "The folders you can use". They are too many to show here: find the answer with Glob, Grep and Read, giving a folder's path, and read as little as you need.
+[no-notes] There are no notes for this meeting.
+[folders] Everything else in the folders listed under "The folders you can use": source code, configuration, whatever is kept there. None of it is shown to you. Search it with Grep and Glob, giving the folder's path, and read with Read only the part that answers the question.
+[files] Other files on this computer, with Read and Glob and a full path, when the question is about a particular file or folder. Searching inside files, with Grep, works only in the folders you can use.
+[web] The web. WebSearch searches it, and WebFetch reads one page. Prefer what the search itself tells you: reading pages takes longer.
+[mcp] Tools from other programs and services Stand's human uses; their names begin with mcp__. Use one when the question needs it and not otherwise.

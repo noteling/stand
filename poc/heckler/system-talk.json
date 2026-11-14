@@ -1,0 +1,72 @@
+{
+  "description": "The advanced north star: Stand gives a talk its brain prepared from a system's documents and code, and takes questions that are answered from the plan, from the facts the plan keeps ready, from the code, and from nowhere. The practice system is Stand itself. Run with STAND_BRAIN=poc/heckler/system-brain.json and --talk talks/how-stand-works-inside.md (prepared with --probe prepare --brief poc/heckler/system/brief.md). The talk is about ten minutes, so the voice model's three minutes of memory are used up several times over: the closing questions ask for a name and a request from the first minute.",
+  "during": [
+    {
+      "label": "a name, a job and a request for the end",
+      "kind": "question",
+      "afterSpeechSeconds": 40,
+      "voice": "Daniel",
+      "say": "Sorry to cut in. I'm Kofi, I'll be working on the audio side. At the end, could you tell me which test I should run after I change the audio code?"
+    },
+    {
+      "label": "a fact the plan keeps ready",
+      "kind": "question",
+      "afterSpeechSeconds": 130,
+      "voice": "Samantha",
+      "say": "Quick question. How long do the Allow and No buttons stay up before no answer counts as a no?"
+    },
+    {
+      "label": "a fact only the code has",
+      "kind": "question",
+      "afterSpeechSeconds": 210,
+      "voice": "Daniel",
+      "say": "One thing. How large can a single file of code be before Stand leaves it out of what the brain can search?"
+    },
+    {
+      "label": "listening noise",
+      "kind": "noise",
+      "afterSpeechSeconds": 290,
+      "voice": "Samantha",
+      "say": "Mm-hm."
+    },
+    {
+      "label": "something that is nowhere",
+      "kind": "question",
+      "afterSpeechSeconds": 350,
+      "voice": "Samantha",
+      "say": "Is there any continuous integration set up for this project?"
+    },
+    {
+      "label": "off the subject",
+      "kind": "question",
+      "afterSpeechSeconds": 430,
+      "voice": "Daniel",
+      "say": "Unrelated, but do you know what the weather will be like tomorrow?"
+    }
+  ],
+  "after": [
+    {
+      "label": "what it owes",
+      "voice": "Samantha",
+      "say": "Stand, early on someone asked you to come back to something at the end. What was it, and what is the answer?"
+    },
+    {
+      "label": "who asked",
+      "voice": "Daniel",
+      "say": "And do you remember who asked that, and what they will be working on?"
+    },
+    {
+      "label": "another fact only the code has",
+      "voice": "Samantha",
+      "say": "Which hidden folders does Stand still read when it takes in a folder of code?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "Thanks, that's all the questions we have."
+  },
+  "talkIsAtLeastSpeechSeconds": 240,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 22
+}

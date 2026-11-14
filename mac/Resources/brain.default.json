@@ -1,0 +1,15 @@
+{
+  "connectionMode": "auto",
+  "model": "claude-sonnet-5-5",
+  "effort": "low",
+  "apiBaseURL": "",
+  "apiHeaders": {},
+  "claudePath": "",
+  "contextFolder": "context",
+  "sources": [],
+  "web": true,
+  "mcpConfig": "",
+  "claudeCodeSetup": true,
+  "ask": "irreversible",
+  "allowWithoutAsking": []
+}

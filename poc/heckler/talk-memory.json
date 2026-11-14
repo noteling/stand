@@ -1,0 +1,39 @@
+{
+  "description": "Does Stand's brain remember for it during a talk? Early on someone gives a name and a team and asks for something at the end, and later someone takes the talk off course. The voice model is set to keep about a minute (--context-tokens 6500 --context-keeps 5200), so by the closing questions it has lost the exchange and the first half of its own talk. With the prompter its sheet carries both, and it should answer the two closing questions and not give any section twice. With --no-prompter it has nothing to answer from. Run with the north-star talk.",
+  "during": [
+    {
+      "label": "a name, a team and a request",
+      "kind": "question",
+      "afterSpeechSeconds": 15,
+      "voice": "Samantha",
+      "say": "Sorry to cut in. I'm Priya, from the billing team. At the end, could you tell us whether it works on Windows?"
+    },
+    {
+      "label": "a detour",
+      "kind": "question",
+      "afterSpeechSeconds": 70,
+      "voice": "Daniel",
+      "say": "Quick one from me. How many people are working on this?"
+    }
+  ],
+  "after": [
+    {
+      "label": "what it owes",
+      "voice": "Daniel",
+      "say": "Stand, earlier someone asked you to come back to something at the end. What was it?"
+    },
+    {
+      "label": "who asked",
+      "voice": "Samantha",
+      "say": "And do you remember my name, and which team I'm from?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "Thanks, that's all the questions we have."
+  },
+  "talkIsAtLeastSpeechSeconds": 50,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 8
+}

@@ -1,0 +1,287 @@
+{
+  "description": "A twelve-minute planning meeting among three people, mostly not for Stand: long stretches of talk and of silence, the word stand in its ordinary senses, three questions to Stand by name, two moments its brief tells it to speak up at, and one note from its human. It runs past ten minutes on purpose, which is when the voice service replaces the connection. Run with STAND_CONTEXT=poc/heckler/context.",
+  "brief": "poc/heckler/discussion-brief.md",
+  "gapSeconds": 0.8,
+  "discussion": [
+    {
+      "voice": "Daniel",
+      "say": "Morning, both. Let's give Karen a minute, she said she'd join late.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Sure. I'll use the time to find last week's notes.",
+      "expect": "quiet",
+      "gapSeconds": 40
+    },
+    {
+      "voice": "Karen",
+      "say": "Hi, sorry, I'm here now. The train was late again.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "No problem. Okay, three things today: Tuesday's session, the next date, and catering.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Tuesday went well, I think. The room was full, and people stayed right to the end.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "I heard the projector played up, though.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Only for the first five minutes. After that it was fine.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Did the feedback forms come back?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Most of them. I'll read through them this week and send a summary.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "Can you send it to me as well? I'd like to see what they said about the pace.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Of course. I'll send it to all of us.",
+      "expect": "quiet",
+      "gapSeconds": 2
+    },
+    {
+      "voice": "Daniel",
+      "say": "Stand, do you know how many people came on Tuesday?",
+      "expect": "speaks",
+      "replyWithinSeconds": 8,
+      "mustSay": "fourteen|14"
+    },
+    {
+      "voice": "Karen",
+      "say": "Fourteen. That's more than last time, isn't it?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "It is. Last time we had nine.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Good. Let me just write that down.",
+      "expect": "quiet",
+      "gapSeconds": 75
+    },
+    {
+      "voice": "Daniel",
+      "say": "Right. The next date. I'd like to bring the next session forward to the twelfth of November.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "That works for me, I'm away the week after."
+    },
+    {
+      "voice": "Samantha",
+      "say": "The twelfth is fine with me too. Shall we settle on that?",
+      "expect": "speaks",
+      "alsoAfterPrevious": true,
+      "gapSeconds": 3,
+      "mustSay": "nineteen|19"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Ah, the room. I forgot about that. Then it has to be the nineteenth.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "That's the week I'm away. Could we do the twentieth instead?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "I can do the twentieth. Daniel?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "The twentieth works. Let's say the twentieth of November, then.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "Great. I'll put it in the calendar.",
+      "expect": "quiet",
+      "gapSeconds": 150
+    },
+    {
+      "voice": "Samantha",
+      "say": "While she does that. Daniel, did you ever hear back from the printer?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Yesterday. They can do the handouts by Friday, but they want the files by tomorrow.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "I can't stand that printer, honestly. Everything is always last minute with them.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "I know. But they are cheap, and they are around the corner.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "Okay, it's in the calendar. Where do we stand on the catering?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "I haven't ordered anything yet. I wanted to check the numbers first.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "And I'm not sure we have the money for it, to be honest.",
+      "expect": "speaks",
+      "gapSeconds": 3,
+      "mustSay": "four hundred|400"
+    },
+    {
+      "voice": "Karen",
+      "say": "Oh good. Four hundred is plenty for fifteen people.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Then I'll order lunch for fifteen. Sandwiches and fruit, like last time.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Can you make sure there is something without gluten? Two people asked.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Will do.",
+      "expect": "quiet",
+      "gapSeconds": 100
+    },
+    {
+      "voice": "Karen",
+      "say": "Sorry, I was just reading the room booking. It says the room is called Juniper. Is that the one on the second floor?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Yes, second floor, at the end of the corridor.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "The one with the big windows. It gets warm in the afternoon.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "Then let's start in the morning. Ten o'clock?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Ten is good.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Ten it is.",
+      "expect": "quiet",
+      "gapSeconds": 2
+    },
+    {
+      "voice": "Karen",
+      "say": "Stand, can you join a Zoom call, if we do one of these remotely?",
+      "expect": "speaks"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Interesting. Okay, we can talk about that another time.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Anything else? Otherwise I have one small thing about the handouts.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Go ahead.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "I'd like to add a page with the names of everyone who is presenting. Is that all right?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "Fine by me.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Fine by me too. Keep it to one page.",
+      "expect": "quiet",
+      "gapSeconds": 75
+    },
+    {
+      "kind": "whisper",
+      "say": "Tell them I will bring the name badges.",
+      "expect": "speaks",
+      "mustSay": "Morgan"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Oh, good. That's one less thing for me.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "Are we done, then?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "I think so. Stand, anything else from you before we finish?",
+      "expect": "speaks",
+      "mustSay": "nothing|\\bno\\b"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Good. Thanks, everyone.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "Thanks. Bye."
+    }
+  ],
+  "maxMinutes": 16
+}

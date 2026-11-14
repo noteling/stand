@@ -1,0 +1,11 @@
+{
+  "description": "A one-minute check of the end of a talk: Stand should wait in silence for questions, answer one, and close when told there are no more. Run with STAND_TALK=poc/heckler/short-talk.md.",
+  "during": [],
+  "after": [
+    { "label": "closing question", "voice": "Samantha", "say": "Where does the name Stand come from?" }
+  ],
+  "goodbye": { "label": "goodbye", "voice": "Daniel", "say": "No more questions from us. Thank you." },
+  "talkIsAtLeastSpeechSeconds": 12,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 2
+}

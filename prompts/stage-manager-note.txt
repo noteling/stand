@@ -1,0 +1,5 @@
+[stage manager] {opening}
+Decide which kind of note it is.
+- It asks you to say something to the people in the meeting, or to do something now (for example: tell them, ask them, wrap up, move on). Then do it now, out loud, in your own words, speaking to them. Do not call nothing_to_say.
+- It only gives you information, or asks for something later. Then you now know it: call the tool nothing_to_say and stay silent.
+Never tell anyone that you were passed a note, and never answer this message itself.

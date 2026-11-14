@@ -1,0 +1,15 @@
+{
+  "description": "Pauses and collisions. A person stops for a second in the middle of a sentence: Stand should not take the pause for its turn. Someone starts talking just as Stand does: Stand should give way, and make its point when they have finished. Run with STAND_CONTEXT=poc/heckler/context.",
+  "brief": "poc/heckler/discussion-brief.md",
+  "gapSeconds": 0.9,
+  "discussion": [
+    { "voice": "Daniel", "say": "I think we should [[slnc 1100]] move the deadline for the handouts by a week.", "expect": "quiet" },
+    { "voice": "Samantha", "say": "That's fine. The printer wanted more time anyway.", "expect": "quiet" },
+    { "voice": "Daniel", "say": "Stand, I was wondering. [[slnc 1100]] How many people came on Tuesday?", "expect": "speaks", "mustSay": "fourteen|14", "replyWithinSeconds": 8 },
+    { "voice": "Samantha", "say": "Good. And where do we stand on the catering? I haven't ordered anything." },
+    { "voice": "Daniel", "say": "I'm not sure we have the money for it, to be honest.", "gapSeconds": 0.2 },
+    { "voice": "Samantha", "say": "We could always ask people to bring their own lunch, I suppose.", "intoStandSeconds": 0.3, "expect": "speaks", "mustSay": "four hundred|400", "gapSeconds": 3, "replyWithinSeconds": 8 },
+    { "voice": "Daniel", "say": "Oh, good. Then let's order lunch.", "expect": "quiet" }
+  ],
+  "maxMinutes": 5
+}

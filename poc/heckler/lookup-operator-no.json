@@ -1,0 +1,25 @@
+{
+  "description": "The brain set to ask before everything (\"ask\": \"always\"), with nobody saying yes. Stand should say it cannot check that, and nothing about being refused. Run with STAND_BRAIN=poc/heckler/operator-brain-ask.json and --talk poc/heckler/short-talk.md.",
+  "answerAsks": false,
+  "during": [],
+  "after": [
+    {
+      "label": "fact that needs a tool",
+      "voice": "Samantha",
+      "say": "Where has the Juniper order got to?"
+    },
+    {
+      "label": "fact from the notes, afterwards",
+      "voice": "Daniel",
+      "say": "When is the next rehearsal?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "No more questions from us. Thank you."
+  },
+  "talkIsAtLeastSpeechSeconds": 12,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 5
+}

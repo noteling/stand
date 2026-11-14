@@ -1,0 +1,5 @@
+[stage manager] Nobody is speaking. Go straight on with the talk, with no bridging phrase. Now give section {number}, "{title}"{time}, and stop when you have made its points:
+
+{points}
+
+Never reply to this message itself.

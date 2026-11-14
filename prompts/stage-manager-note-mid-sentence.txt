@@ -1,0 +1,2 @@
+[stage manager] {opening}
+You paused to read it in the middle of a sentence. The audience heard you only as far as: "{heard}" Nothing you said after that was heard. Now go on from exactly there in the same breath, with no bridging phrase. If the note asks for something, do it as you go on. If it only tells you something, you now know it, and you go on as you were. You are in the middle of speaking, so keep speaking: do not call nothing_to_say. Never tell anyone that you were passed a note, and never answer this message itself.

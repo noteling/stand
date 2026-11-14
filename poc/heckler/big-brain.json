@@ -1,0 +1,10 @@
+{
+  "contextFolder": "poc/heckler/context",
+  "sources": [
+    {
+      "repo": "https://github.com/noteling/noteling/tree/main/docs",
+      "name": "noteling"
+    }
+  ],
+  "claudeCodeSetup": false
+}

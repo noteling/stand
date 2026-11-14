@@ -1,0 +1,39 @@
+{
+  "description": "One person asks another \"Which one would you go for?\", and the other takes four seconds to start answering. Stand should leave the question to them: not answer it at once, and not answer it afterwards because its prompter, asked in that silence, said the question was probably Stand's own (the point must be dropped once the other person is speaking). Then a question with no name on it that nobody answers: after a few seconds of silence Stand takes it, which is the rule as the user kept it on 2026-11-13. What it says then must not be the things its brief told it to watch for: nobody has come near them. Run with STAND_CONTEXT=poc/heckler/context.",
+  "brief": "poc/heckler/discussion-brief.md",
+  "gapSeconds": 0.9,
+  "maxMinutes": 3,
+  "discussion": [
+    {
+      "voice": "Daniel",
+      "say": "So I spoke to the venue this morning. They can give us the big hall or the two small rooms.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Okay. Which one would you go for?",
+      "expect": "quiet",
+      "gapSeconds": 4.2
+    },
+    {
+      "voice": "Daniel",
+      "say": "The big hall, I think. The small rooms are too far apart.",
+      "expect": "quiet",
+      "gapSeconds": 6
+    },
+    {
+      "voice": "Samantha",
+      "say": "Agreed. I'll tell them this afternoon.",
+      "expect": "quiet",
+      "gapSeconds": 3
+    },
+    {
+      "voice": "Samantha",
+      "say": "Good. Anything else from you before we finish?",
+      "expect": "speaks",
+      "gapSeconds": 9,
+      "replyWithinSeconds": 10,
+      "mustNotSay": "nineteen|19|catering|four hundred|400"
+    }
+  ]
+}

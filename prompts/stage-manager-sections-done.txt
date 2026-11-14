@@ -1,0 +1,1 @@
+[stage manager] Nobody is speaking. Every section of the talk has been given. If you have not yet invited questions, do so now in one sentence and call open_the_floor. If you are waiting for questions, stay completely silent. Never reply to this message itself.

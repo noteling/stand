@@ -1,0 +1,29 @@
+{
+  "description": "One thing only: a question to Stand, by name, that follows a second after someone else's sentence, in a meeting where Stand has not said a word. It is the hardest way to be spoken to. Run with STAND_CONTEXT=poc/heckler/context. To see what goes wrong otherwise: --ends-after-when-out 1.5 makes one utterance of the three sentences, as was done for an evening, and --turn-finishes-within 0 tells the service about each sentence the moment it starts, as was done before that. --no-prompter leaves Stand to catch the question by itself.",
+  "brief": "poc/heckler/discussion-brief.md",
+  "gapSeconds": 0.9,
+  "discussion": [
+    {
+      "voice": "Daniel",
+      "say": "Okay. Samantha, are you ordering the lunch?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Yes. I'll order lunch for fifteen.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Stand, anything else from you before we finish?",
+      "expect": "speaks",
+      "replyWithinSeconds": 14,
+      "mustSay": "nothing|\\bno\\b|catering|nineteen|19"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Thanks, everyone. Talk next week."
+    }
+  ],
+  "maxMinutes": 2
+}

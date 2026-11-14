@@ -1,0 +1,14 @@
+{
+  "description": "Checks notes from several places: the project's own folder, a second folder on this Mac, and a GitHub repository. Run with STAND_BRAIN=poc/heckler/sources-brain.json and --talk poc/heckler/short-talk.md.",
+  "during": [],
+  "after": [
+    { "label": "fact from the second folder", "voice": "Daniel", "say": "Where can we park for the pilot review?" },
+    { "label": "fact from the GitHub repository", "voice": "Samantha", "say": "In the team tools template, what does the example job called pages up check?" },
+    { "label": "fact from the project's own notes", "voice": "Daniel", "say": "How many people attended the Tuesday pilot?" },
+    { "label": "fact that is nowhere", "voice": "Samantha", "say": "Who is catering the pilot review dinner?" }
+  ],
+  "goodbye": { "label": "goodbye", "voice": "Daniel", "say": "No more questions from us. Thank you." },
+  "talkIsAtLeastSpeechSeconds": 12,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 5
+}

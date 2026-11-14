@@ -1,0 +1,1 @@
+This is my answer to what you asked me ('{question}'): {answer} Tell the person who asked, now, in your own words: remind them of the question in a few words, then give them my answer as coming from me.

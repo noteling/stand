@@ -1,0 +1,10 @@
+{
+  "description": "Four minutes in which almost nobody speaks, as when people are reading. Stand should say nothing, the session should stay up, and it should still answer at the end. Run with STAND_CONTEXT=poc/heckler/context.",
+  "brief": "poc/heckler/discussion-brief.md",
+  "discussion": [
+    { "voice": "Daniel", "say": "Let's all read the proposal first. Take your time.", "expect": "quiet", "gapSeconds": 200 },
+    { "voice": "Samantha", "say": "Okay, I've read it.", "expect": "quiet", "gapSeconds": 30 },
+    { "voice": "Daniel", "say": "Stand, do you know how many people came on Tuesday?", "expect": "speaks", "mustSay": "fourteen|14", "replyWithinSeconds": 8 }
+  ],
+  "maxMinutes": 8
+}

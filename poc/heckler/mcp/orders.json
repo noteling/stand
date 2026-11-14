@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "orders": {
+      "command": "/usr/bin/python3",
+      "args": ["${STAND_ROOT}/poc/heckler/mcp/orders_server.py"]
+    }
+  }
+}

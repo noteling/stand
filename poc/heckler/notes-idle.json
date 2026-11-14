@@ -1,0 +1,17 @@
+{
+  "description": "Notes passed to Stand while nobody is speaking, after a short talk. Half ask it to say something now, and it should; half only tell it something, and it should stay silent. Run with --talk poc/heckler/short-talk.md.",
+  "during": [],
+  "after": [
+    { "label": "say: five minutes", "kind": "whisper", "waitSeconds": 4, "say": "Tell them we only have five minutes left." },
+    { "label": "know: follow-up", "kind": "whisper", "waitSeconds": 4, "say": "The follow-up meeting is on Thursday at ten." },
+    { "label": "say: ask about pricing", "kind": "whisper", "waitSeconds": 4, "say": "Ask if anyone has questions about pricing." },
+    { "label": "know: who Priya is", "kind": "whisper", "waitSeconds": 4, "say": "Priya is the CFO. She cares about cost." },
+    { "label": "say: slides", "kind": "whisper", "waitSeconds": 4, "say": "Say that we will send the slides after the meeting." },
+    { "label": "know: for later", "kind": "whisper", "waitSeconds": 4, "say": "If they ask about a discount, the answer is no." },
+    { "label": "question a note answers", "voice": "Samantha", "waitSeconds": 3, "say": "Is there any chance of a discount?" },
+    { "label": "say: wrap up", "kind": "whisper", "waitSeconds": 4, "say": "wrap up" }
+  ],
+  "talkIsAtLeastSpeechSeconds": 12,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 4
+}

@@ -1,0 +1,1 @@
+You asked me: '{question}' I have no answer to that for now. Tell the person who asked, now, that you could not get one.

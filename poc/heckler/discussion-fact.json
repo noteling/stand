@@ -1,0 +1,59 @@
+{
+  "description": "A brief that is one bare fact and asks Stand to watch for nothing. Stand should keep the fact to itself until someone asks for it, or until a decision is about to rest on a different figure. The case is the user's own session of 2026-11-13: asked only \"Stand, you there?\", it answered \"The team has 19 people.\" The lines that have nothing to do with the fact are followed by four seconds of quiet: with less, whatever Stand blurts out collides with the next speaker, is not played, and the run passes.",
+  "brief": "poc/heckler/discussion-fact-brief.md",
+  "gapSeconds": 0.9,
+  "maxMinutes": 4,
+  "discussion": [
+    {
+      "voice": "Daniel",
+      "say": "Yeah, let's start a discussion about this week's team outing activity.",
+      "expect": "quiet",
+      "mustNotSay": "nineteen|19"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Stand, you there?",
+      "expect": "speaks",
+      "mustSay": "here|yes|listening",
+      "mustNotSay": "nineteen|19"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Good. So I was thinking bowling, or maybe the escape room downtown.",
+      "expect": "quiet",
+      "mustNotSay": "nineteen|19",
+      "gapSeconds": 4
+    },
+    {
+      "voice": "Daniel",
+      "say": "Bowling is easier to book, I think. Let's go with bowling on Thursday evening.",
+      "expect": "quiet",
+      "mustNotSay": "nineteen|19",
+      "gapSeconds": 4
+    },
+    {
+      "voice": "Samantha",
+      "say": "Fine by me. I'll book lanes for twenty-five people, then.",
+      "expect": "speaks",
+      "mustSay": "nineteen|19",
+      "gapSeconds": 6,
+      "replyWithinSeconds": 10
+    },
+    {
+      "voice": "Daniel",
+      "say": "Right, nineteen. Book for nineteen.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Stand, how many of us are there again?",
+      "expect": "speaks",
+      "mustSay": "nineteen|19"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Great. That's everything, thanks.",
+      "expect": "quiet"
+    }
+  ]
+}

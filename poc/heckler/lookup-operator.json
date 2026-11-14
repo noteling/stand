@@ -1,0 +1,40 @@
+{
+  "description": "Checks the brain as an operator: a fact from the notes, a fact that needs a tool from an MCP server (used without asking, since it only looks), and a fact from the web that takes long enough for Stand to say so and carry on. Run with STAND_BRAIN=poc/heckler/operator-brain.json and --talk poc/heckler/short-talk.md.",
+  "during": [],
+  "after": [
+    {
+      "label": "fact from the notes",
+      "voice": "Daniel",
+      "say": "When is the next rehearsal?"
+    },
+    {
+      "label": "fact that needs a tool",
+      "voice": "Samantha",
+      "say": "Where has the Juniper order got to?"
+    },
+    {
+      "label": "fact from the web, which takes a while",
+      "voice": "Daniel",
+      "say": "Which version of the Swift programming language is the latest stable one?"
+    },
+    {
+      "label": "the next question, while that one is still being looked up",
+      "voice": "Samantha",
+      "say": "And where does the name Stand come from?"
+    },
+    {
+      "label": "a pause, for a late answer to arrive",
+      "voice": "Daniel",
+      "waitSeconds": 12,
+      "say": "Was there anything you were going to come back to?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "No more questions from us. Thank you."
+  },
+  "talkIsAtLeastSpeechSeconds": 12,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 5
+}

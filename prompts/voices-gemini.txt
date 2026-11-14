@@ -1,0 +1,42 @@
+# The voices Stand can speak with: the ones Gemini's live model takes by name.
+# One a line: the name, whose voice the service says it is, and how the service
+# describes it. The panel's Voice menu is this list, in this order.
+#
+# Only these work. Given any other name the service does not refuse: it speaks with
+# Zephyr's voice and says nothing about it (tried on 2026-11-13). The service lists two
+# thousand more voices for its text-to-speech models, and can copy a person's voice from
+# a recording for them; its live model, reached with a key as Stand reaches it, takes
+# none of those.
+
+Achernar | woman | soft, calm, soothing
+Aoede | woman | breezy, light, relaxed
+Autonoe | woman | bright, positive, enthusiastic
+Callirrhoe | woman | easy-going, relaxed, casual
+Despina | woman | smooth, mellow, polished
+Erinome | woman | clear, articulate, precise
+Gacrux | woman | mature, authoritative, professional
+Kore | woman | firm, direct, authoritative
+Laomedeia | woman | upbeat, energetic, positive
+Leda | woman | youthful, vibrant, energetic
+Sulafat | woman | warm, inviting, comforting
+Vindemiatrix | woman | gentle, mild, calming
+Zephyr | woman | bright, positive, forward-looking
+
+Achird | man | friendly, approachable, warm
+Algenib | man | gravelly, grounded, hard-hitting
+Algieba | man | smooth, relaxed, polished
+Alnilam | man | firm, direct, commanding
+Charon | man | informative, steady
+Enceladus | man | breathy, intimate, soft-spoken
+Fenrir | man | excitable, high-energy, passionate
+Iapetus | man | clear, crisp, articulate
+Orus | man | firm, serious, no-nonsense
+Puck | man | upbeat, energetic, cheerful
+Rasalgethi | man | informative, measured
+Sadachbia | man | lively, animated, engaging
+Sadaltager | man | knowledgeable, steady
+Schedar | man | even, balanced, steady
+Umbriel | man | easy-going, laid-back, casual
+Zubenelgenubi | man | casual, conversational, laid-back
+
+Pulcherrima | neither | forward, confident, direct

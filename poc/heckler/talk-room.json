@@ -1,0 +1,61 @@
+{
+  "description": "A talk in a room that reacts: real laughter and real talk between two people, taken from the user's own session of 2026-11-13 (runs/2026-11-13T16-20-06-gemini-app, which has to be kept for this script to run). A short laugh should not stop Stand at all. A long laugh stops it, and it should take the laugh lightly and go on from where it was, with no 'back to where I was'. Two people talking to each other in Chinese stop it too; it should go on when they finish. A real question must still stop it and be answered whole. Run with the north-star talk.",
+  "during": [
+    {
+      "label": "a short laugh",
+      "kind": "noise",
+      "afterSpeechSeconds": 14,
+      "say": "(a laugh of two seconds, not loud)",
+      "clip": "runs/2026-11-13T16-20-06-gemini-app/room.wav",
+      "clipFrom": 32.0,
+      "clipTo": 34.6
+    },
+    {
+      "label": "a long laugh",
+      "kind": "noise",
+      "afterSpeechSeconds": 34,
+      "say": "(someone bursts out laughing, three seconds)",
+      "clip": "runs/2026-11-13T16-20-06-gemini-app/room.wav",
+      "clipFrom": 66.0,
+      "clipTo": 69.3
+    },
+    {
+      "label": "two people talking to each other",
+      "kind": "noise",
+      "afterSpeechSeconds": 58,
+      "say": "(one asks the other, in Chinese, whether every sentence costs money; the other says yes)",
+      "clip": "runs/2026-11-13T16-20-06-gemini-app/room.wav",
+      "clipFrom": 38.6,
+      "clipTo": 43.6
+    },
+    {
+      "label": "a real question",
+      "kind": "question",
+      "afterSpeechSeconds": 82,
+      "voice": "Samantha",
+      "say": "Sorry, can I ask something? Can it tell which of us is speaking?"
+    },
+    {
+      "label": "a short sound",
+      "kind": "noise",
+      "afterSpeechSeconds": 100,
+      "voice": "Daniel",
+      "say": "Mm."
+    }
+  ],
+  "after": [
+    {
+      "label": "closing question",
+      "voice": "Daniel",
+      "say": "Where does the name Stand come from, again?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "Thanks, that's all the questions we have."
+  },
+  "talkIsAtLeastSpeechSeconds": 50,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 10
+}

@@ -1,0 +1,15 @@
+The brief Stand's human wrote for this meeting:
+{brief}
+
+The sheet as you last wrote it:
+{sheet}
+
+Already passed to Stand as worth saying:
+{passed}
+
+Said since then:
+{said}
+
+{quiet}
+
+Write the sheet again, brought up to date.

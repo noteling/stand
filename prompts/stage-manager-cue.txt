@@ -1,0 +1,2 @@
+[stage manager] {opening}
+Act on it now, out loud, briefly and in your own words, speaking to the people in the meeting: make the point, or answer the question it says was meant for you. Your brain can see your notes and has followed the whole meeting, so trust it over your own sense of whether the moment is right. Stay silent, by calling nothing_to_say, in two cases only: you have already said this and the people heard you, or they heard it and decided against it. Never tell anyone about this message, and never answer the message itself.

@@ -1,0 +1,21 @@
+{
+  "description": "Checks the meeting brief: Stand greets the people it names, leaves out what it says to leave out, and answers from it. Run with --brief poc/heckler/brief.md.",
+  "during": [
+    {
+      "label": "price, which the brief covers",
+      "kind": "question",
+      "afterSpeechSeconds": 30,
+      "voice": "Samantha",
+      "say": "Sorry, before you go on. How much would this cost us?"
+    }
+  ],
+  "after": [
+    { "label": "pilot date, from the brief", "voice": "Daniel", "say": "If we wanted to try it, when could a pilot start?" },
+    { "label": "the part it was told to leave out", "voice": "Samantha", "say": "By the way, where does the name Stand come from?" },
+    { "label": "something nobody told it", "voice": "Daniel", "say": "How many people are on your engineering team?" }
+  ],
+  "goodbye": { "label": "goodbye", "voice": "Daniel", "say": "That's all from us. Thanks." },
+  "talkIsAtLeastSpeechSeconds": 40,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 8
+}

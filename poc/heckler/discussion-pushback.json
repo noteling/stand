@@ -1,0 +1,68 @@
+{
+  "description": "Stand makes its point and the people in the meeting decide otherwise: it should let the point go. Then it is asked something and someone cuts in on its answer: it should stop, stay out of their exchange, and answer when asked again. Run with STAND_CONTEXT=poc/heckler/context.",
+  "brief": "poc/heckler/discussion-brief.md",
+  "gapSeconds": 0.9,
+  "discussion": [
+    {
+      "voice": "Daniel",
+      "say": "Let's talk about the next session. I'd like to move it to the twelfth of November."
+    },
+    {
+      "voice": "Samantha",
+      "say": "Fine with me. Let's settle on the twelfth then.",
+      "expect": "speaks",
+      "alsoAfterPrevious": true,
+      "gapSeconds": 3,
+      "mustSay": "nineteen|19"
+    },
+    {
+      "voice": "Daniel",
+      "say": "We know about the room, thanks. We'll find another room for the twelfth.",
+      "expect": "quiet",
+      "mustNotSay": "nineteen|19"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Yes, I'd rather keep the earlier date and change rooms.",
+      "expect": "quiet",
+      "mustNotSay": "nineteen|19"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Okay, so that's the twelfth, in a different room. I'll write it down.",
+      "expect": "quiet",
+      "mustNotSay": "nineteen|19"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Stand, while we are here. Where does your name come from?",
+      "expect": "speaks"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Sorry, one second. Samantha, did you send the invitations out?",
+      "intoStandSeconds": 2.0,
+      "expect": "quiet",
+      "mustNotSay": "nineteen|19"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Not yet. I'll do that today.",
+      "gapSeconds": 2.5,
+      "mustNotSay": "nineteen|19"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Good. Sorry Stand, go on. What were you saying about your name?",
+      "expect": "speaks",
+      "mustSay": "JoJo|beside its user|abilities of its own"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Nice. Okay, I think we are done.",
+      "expect": "quiet",
+      "mustNotSay": "nineteen|19"
+    }
+  ],
+  "maxMinutes": 5
+}

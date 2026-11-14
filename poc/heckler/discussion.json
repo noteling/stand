@@ -1,0 +1,83 @@
+{
+  "description": "Stand sits in a planning discussion between two people and gives no talk. It should stay quiet while they talk to each other, answer when one of them speaks to it, and speak up twice without being asked, where its brief says to. Run with STAND_CONTEXT=poc/heckler/context, so the attendance question can be looked up.",
+  "brief": "poc/heckler/discussion-brief.md",
+  "gapSeconds": 0.9,
+  "discussion": [
+    {
+      "voice": "Daniel",
+      "say": "Okay, let's get going. Samantha, how did Tuesday go?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "It went well, I think. The room was full, and people stayed right to the end.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Good. Did the feedback forms come back?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Most of them did. I'll read through them this week.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Stand, do you know how many people came on Tuesday?",
+      "expect": "speaks",
+      "replyWithinSeconds": 8,
+      "mustSay": "fourteen|14"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Fourteen. That's more than I expected.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Now, the next session. I'd like to bring it forward to the twelfth of November."
+    },
+    {
+      "voice": "Samantha",
+      "say": "The twelfth is fine with me. Shall we settle on that?",
+      "expect": "speaks",
+      "alsoAfterPrevious": true,
+      "gapSeconds": 3,
+      "mustSay": "nineteen|19"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Oh. Right, then we keep the nineteenth.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "So where do we stand on the catering? I haven't ordered anything yet."
+    },
+    {
+      "voice": "Daniel",
+      "say": "I'm not sure we have the money for it, to be honest.",
+      "expect": "speaks",
+      "gapSeconds": 3,
+      "mustSay": "four hundred|400"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Great, that settles it. I'll order lunch for fifteen.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Stand, anything else from you before we finish?",
+      "expect": "speaks",
+      "mustSay": "nothing|\\bno\\b"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Thanks, everyone. Talk next week."
+    }
+  ],
+  "maxMinutes": 5
+}

@@ -1,0 +1,12 @@
+{
+  "description": "A one-minute check of what stops Stand: two listening noises it should talk through, then a real question it should stop for.",
+  "during": [
+    { "label": "mm-hm", "kind": "noise", "afterSpeechSeconds": 8, "voice": "Daniel", "say": "Mm-hm." },
+    { "label": "right", "kind": "noise", "afterSpeechSeconds": 20, "voice": "Samantha", "say": "Right." },
+    { "label": "real question", "kind": "question", "afterSpeechSeconds": 32, "voice": "Samantha", "say": "Wait, sorry, can you say again what it is not?" }
+  ],
+  "after": [],
+  "talkIsAtLeastSpeechSeconds": 600,
+  "talkEndsAfterQuietSeconds": 600,
+  "maxMinutes": 1.1
+}

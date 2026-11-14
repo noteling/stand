@@ -1,0 +1,16 @@
+{
+  "description": "The prompter. Someone gets a figure wrong that the notes have right, a room is named wrongly, and two questions are put to the room that the notes answer. With the prompter, Stand should correct the figure without being asked and answer from its sheet without looking anything up. With --no-prompter it has only its own tools, to compare. Run with STAND_CONTEXT=poc/heckler/context.",
+  "brief": "poc/heckler/discussion-brief.md",
+  "gapSeconds": 0.9,
+  "discussion": [
+    { "voice": "Daniel", "say": "Let's sort out lunch for the next session. Samantha, how many came on Tuesday?", "expect": "quiet" },
+    { "voice": "Samantha", "say": "About twenty, I think. So let's order lunch for twenty." },
+    { "voice": "Daniel", "say": "Twenty it is. I will put the order in this afternoon. Sandwiches again, like last time?", "gapSeconds": 1.2 },
+    { "voice": "Samantha", "say": "Sandwiches and fruit. That worked well.", "expect": "speaks", "mustSay": "fourteen|14", "alsoAfterPrevious": true, "gapSeconds": 6, "replyWithinSeconds": 10 },
+    { "voice": "Daniel", "say": "Oh. Fourteen, then. Good that someone is counting.", "expect": "quiet" },
+    { "voice": "Samantha", "say": "And does anyone remember which room the pilot ran in? I always forget its name.", "expect": "speaks", "mustSay": "juniper", "gapSeconds": 4, "replyWithinSeconds": 8 },
+    { "voice": "Daniel", "say": "Juniper, right. Stand, when is the next rehearsal?", "expect": "speaks", "mustSay": "nineteen|19", "replyWithinSeconds": 8 },
+    { "voice": "Samantha", "say": "Good. I think that is everything.", "expect": "quiet" }
+  ],
+  "maxMinutes": 5
+}

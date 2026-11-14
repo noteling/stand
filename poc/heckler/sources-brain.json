@@ -1,0 +1,13 @@
+{
+  "contextFolder": "poc/heckler/context",
+  "sources": [
+    {
+      "repo": "https://github.com/noteling/team-tools-template",
+      "name": "template"
+    },
+    {
+      "folder": "poc/heckler/more-notes"
+    }
+  ],
+  "claudeCodeSetup": false
+}

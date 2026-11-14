@@ -1,0 +1,10 @@
+{
+  "description": "A probe, not a test of behaviour: what does the voice model itself hear, beyond the words? It is played a real laugh (from the user's session of 2026-11-13, runs/2026-11-13T16-20-06-gemini-app, which has to be kept) and asked what the sound was, then a second voice and asked whether it was a different person, a man or a woman. Run with --no-prompter, so that nothing but its own ears tells it, and ten times: at three runs a real difference looked like noise. Read what Stand said in the report. STAND_SWAP with the files in poc/heckler/hearing/ puts a plain listener's role in place of Stand's, to compare.",
+  "gapSeconds": 2.5,
+  "discussion": [
+    { "say": "(a burst of laughter, three seconds)", "clip": "runs/2026-11-13T16-20-06-gemini-app/room.wav", "clipFrom": 66.0, "clipTo": 69.3, "gapSeconds": 2.5 },
+    { "voice": "Daniel", "say": "Stand, a moment ago, before I spoke, there was a sound in the room. What was it? Describe what you heard.", "expect": "speaks", "gapSeconds": 6 },
+    { "voice": "Samantha", "say": "The meeting room on the third floor is free on Friday.", "gapSeconds": 2.5 },
+    { "voice": "Daniel", "say": "Stand, the sentence about the meeting room. Was it said by me, or by a different person? And did it sound like a man or a woman?", "expect": "speaks", "gapSeconds": 6 }
+  ]
+}

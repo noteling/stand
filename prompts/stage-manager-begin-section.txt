@@ -1,0 +1,3 @@
+[stage manager] The audience is ready. Begin the talk now. Give section {number}, "{title}"{time}, and stop when you have made its points:
+
+{points}

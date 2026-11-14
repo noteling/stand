@@ -1,0 +1,60 @@
+{
+  "description": "Notes passed to Stand while it sits in a discussion. A note that says to tell the meeting something should be said at the next opening; a note that only informs should not be. Run with STAND_CONTEXT=poc/heckler/context.",
+  "brief": "poc/heckler/discussion-brief.md",
+  "gapSeconds": 0.9,
+  "discussion": [
+    {
+      "voice": "Daniel",
+      "say": "Shall we look at the dates for the follow-up workshop?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Yes. I'm free on the Wednesday and on the Thursday.",
+      "expect": "quiet",
+      "gapSeconds": 1.2
+    },
+    {
+      "kind": "whisper",
+      "say": "Tell them I can only do the Thursday.",
+      "expect": "speaks",
+      "mustSay": "Morgan"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Thursday it is, then.",
+      "expect": "quiet",
+      "gapSeconds": 1.5
+    },
+    {
+      "kind": "whisper",
+      "say": "For your information: the client for the workshop is called Northwind.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Good. I'll book the room for Thursday.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Stand, who is the workshop for?",
+      "expect": "speaks",
+      "mustSay": "Northwind"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Right, Northwind. One more thing, I still need to find out whether the room has what we need for the slides.",
+      "noteDuring": "Tell them the room has a projector.",
+      "noteAfterSeconds": 3.5,
+      "expect": "speaks",
+      "replyWithinSeconds": 6
+    },
+    {
+      "voice": "Daniel",
+      "say": "Good to know. Then we're done.",
+      "expect": "quiet"
+    }
+  ],
+  "maxMinutes": 5
+}

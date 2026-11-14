@@ -1,0 +1,2 @@
+[stage manager] {opening}
+You paused to read it at the end of a sentence. The last sentence the audience heard was: "{heard}" They heard nothing you said after it. Do not say that sentence again. Start with the sentence that came next, as a whole sentence, and carry on from there with no bridging phrase. If the note asks for something, do it as you carry on. If it only tells you something, you now know it. You are in the middle of speaking, so keep speaking: do not call nothing_to_say. Never tell anyone that you were passed a note, and never answer this message itself.

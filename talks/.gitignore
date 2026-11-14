@@ -1,0 +1,8 @@
+# A talk that Stand's brain prepares for a meeting stays on the Mac it was made on: it
+# may be about a system that is nobody else's business. The two kept here are Stand's
+# own: the talk that introduces it, and the one prepared about this repository, which a
+# test gives. A new talk that should ship with Stand has to be named below.
+/*
+!/.gitignore
+!/introducing-stand.md
+!/how-stand-works-inside.md

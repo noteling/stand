@@ -1,0 +1,5 @@
+[stage manager] Nobody is speaking. If someone has just asked you something and you have not answered, answer them first. Then go back to the talk. You were giving section {number}, "{title}", and the audience has not heard this of it:
+
+{points}
+
+Say it, and stop. If you have said it since, say nothing. Never reply to this message itself.

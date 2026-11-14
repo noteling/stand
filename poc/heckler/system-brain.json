@@ -1,0 +1,11 @@
+{
+  "contextFolder": "poc/heckler/system/notes",
+  "sources": [
+    {
+      "folder": ".",
+      "name": "stand"
+    }
+  ],
+  "web": false,
+  "claudeCodeSetup": false
+}

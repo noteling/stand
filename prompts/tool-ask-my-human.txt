@@ -1,0 +1,1 @@
+Puts a question in front of your human, privately, when someone asks for something only they can say (what they think, what they will agree to, whether they can do something) or when a fact that matters could not be found. Say out loud first that you will check with them and come back to it. Their answer arrives later, in a message from the stage manager.

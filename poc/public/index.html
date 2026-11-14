@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stand PoC</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 16px/1.5 system-ui, sans-serif; max-width: 720px; margin: 0 auto; padding: 24px 16px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .hint { opacity: 0.7; margin: 0 0 16px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  button, select { font: inherit; padding: 6px 12px; }
+  #status { margin: 16px 0 8px; font-weight: 600; }
+  #status .dim { font-weight: 400; opacity: 0.7; }
+  #log { border-top: 1px solid color-mix(in srgb, currentColor 20%, transparent); padding-top: 8px; }
+  #log p { margin: 6px 0; }
+  #log .room { opacity: 0.75; }
+  #log .mark { opacity: 0.55; font-style: italic; font-size: 14px; }
+  #log .error { color: #c0392b; }
+</style>
+</head>
+<body>
+  <h1>Stand <span style="font-weight:400">proof of concept</span></h1>
+  <p class="hint">Stand gives a talk introducing itself. Interrupt it out loud, any time. If it keeps cutting itself off, it is hearing its own voice: use headphones.</p>
+  <div class="controls">
+    <label>Voice model <select id="provider"></select></label>
+    <button id="start">Start the talk</button>
+    <button id="stop" disabled>Stop</button>
+  </div>
+  <div id="status">Idle</div>
+  <div id="log"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

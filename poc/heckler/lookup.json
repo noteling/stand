@@ -1,0 +1,37 @@
+{
+  "description": "Checks the brain: questions whose answers are only in the notes, one Stand already knows, and one that is nowhere. Run with STAND_CONTEXT=poc/heckler/context and --talk poc/heckler/short-talk.md.",
+  "during": [
+    {
+      "label": "fact from the notes, mid-talk",
+      "kind": "question",
+      "afterSpeechSeconds": 8,
+      "voice": "Samantha",
+      "say": "Sorry to interrupt, but how many people attended the Tuesday pilot?"
+    }
+  ],
+  "after": [
+    {
+      "label": "fact from the notes",
+      "voice": "Daniel",
+      "say": "When is the next rehearsal?"
+    },
+    {
+      "label": "something it already knows",
+      "voice": "Samantha",
+      "say": "Where does the name Stand come from?"
+    },
+    {
+      "label": "fact that is nowhere",
+      "voice": "Daniel",
+      "say": "What was the budget for the pilot?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "No more questions from us. Thank you."
+  },
+  "talkIsAtLeastSpeechSeconds": 12,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 4
+}

@@ -1,0 +1,2 @@
+[stage manager] {opening}
+Someone is speaking to you right now. Let them finish. Then answer them out loud as you normally would, using what the note tells you. Never tell anyone that you were passed a note.

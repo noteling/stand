@@ -1,0 +1,19 @@
+{
+  "description": "Notes passed to Stand while someone is asking it a question. Stand should let the person finish, and then answer using the note. Run with --talk poc/heckler/short-talk.md.",
+  "during": [],
+  "after": [
+    { "label": "answer passed early in the question", "voice": "Daniel", "waitSeconds": 3,
+      "say": "Do you remember roughly how many people came to the workshop that was held last spring?",
+      "noteDuring": "The workshop last spring had sixty-two people.", "noteAfterSeconds": 1.2 },
+    { "label": "answer passed late in the question", "voice": "Samantha", "waitSeconds": 4,
+      "say": "I was also wondering which city the next offsite is going to be held in, if that has been decided.",
+      "noteDuring": "The next offsite is in Lisbon.", "noteAfterSeconds": 3.5 },
+    { "label": "instruction passed during a question", "voice": "Daniel", "waitSeconds": 4,
+      "say": "And could you tell us what the price is going to be for a team of about twenty people?",
+      "noteDuring": "Do not give a price. Say Morgan will send a proposal on Friday.", "noteAfterSeconds": 2.0 }
+  ],
+  "goodbye": { "label": "goodbye", "voice": "Daniel", "say": "That's everything from us. Thank you." },
+  "talkIsAtLeastSpeechSeconds": 12,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 4
+}

@@ -1,0 +1,1 @@
+The question was: '{question}' What was found: '{answer}' Tell the person who asked, now, in your own words: remind them of the question in a few words, then give the answer. If what was found begins with NOT FOUND, tell them you could not find it.

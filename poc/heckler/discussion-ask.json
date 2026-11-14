@@ -1,0 +1,83 @@
+{
+  "description": "Stand is asked things only its human can say. It should say it will check and come back, put the question to its human, let the meeting go on, and pass the answer on when it comes. One question gets an answer after nine seconds, one gets 'no answer', a fact in the notes is still looked up, and a small thing nobody needs is not put to the human at all. Run with STAND_CONTEXT=poc/heckler/context.",
+  "brief": "poc/heckler/discussion-brief.md",
+  "gapSeconds": 0.9,
+  "human": [
+    {
+      "about": "thursday",
+      "say": "Yes, I can do Thursday, but only after two o'clock.",
+      "afterSeconds": 9
+    },
+    {
+      "about": "second room|pay",
+      "afterSeconds": 8
+    }
+  ],
+  "discussion": [
+    {
+      "voice": "Daniel",
+      "say": "Before we plan the workshop, one question. Stand, can Morgan do the Thursday instead of the Wednesday?",
+      "expect": "speaks",
+      "mustSay": "check|ask|come back|get back|find out",
+      "replyWithinSeconds": 8
+    },
+    {
+      "voice": "Samantha",
+      "say": "While we wait. Daniel, did the printer confirm the handouts?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "They did. The handouts will be ready on Friday morning.",
+      "expect": "speaks",
+      "alsoAfterPrevious": true,
+      "mustSay": "thursday|two",
+      "gapSeconds": 5,
+      "replyWithinSeconds": 12
+    },
+    {
+      "voice": "Samantha",
+      "say": "Good. Thursday after two, then.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Stand, one more. Would Morgan be happy to pay for a second room as well?",
+      "expect": "speaks",
+      "mustSay": "check|ask|come back|get back|find out",
+      "replyWithinSeconds": 8
+    },
+    {
+      "voice": "Samantha",
+      "say": "Meanwhile, I will find out what a second room costs.",
+      "expect": "speaks",
+      "mustSay": "could not|couldn't|no answer|not able|unable|haven't|have not|hasn't|didn't get|don't have|do not have|doesn't have|does not have|has no|have no",
+      "gapSeconds": 6,
+      "replyWithinSeconds": 14
+    },
+    {
+      "voice": "Daniel",
+      "say": "Fine. We will leave that for now.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Stand, do you know how many people came on Tuesday?",
+      "expect": "speaks",
+      "mustSay": "fourteen|14",
+      "replyWithinSeconds": 8
+    },
+    {
+      "voice": "Daniel",
+      "say": "And Stand, do you know what the weather will be like tomorrow?",
+      "expect": "speaks",
+      "replyWithinSeconds": 8
+    },
+    {
+      "voice": "Samantha",
+      "say": "Never mind. I think we are done.",
+      "expect": "quiet"
+    }
+  ],
+  "maxMinutes": 5
+}

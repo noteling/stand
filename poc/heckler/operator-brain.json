@@ -1,0 +1,6 @@
+{
+  "contextFolder": "poc/heckler/context",
+  "web": true,
+  "mcpConfig": "poc/heckler/mcp/orders.json",
+  "claudeCodeSetup": false
+}

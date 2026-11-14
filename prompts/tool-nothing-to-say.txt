@@ -1,0 +1,1 @@
+Call this when a message from the stage manager needs no spoken reply from you, such as a private note from your human that only tells you something. Calling it is how you say nothing. It replaces any acknowledgement: never say "understood", "okay", "noted" or "silent" out loud.

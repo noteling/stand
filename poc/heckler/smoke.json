@@ -1,0 +1,13 @@
+{
+  "description": "A short script for the mock Stand. It checks the rig, not a model.",
+  "during": [
+    { "label": "interruption", "kind": "question", "atSeconds": 7, "voice": "Samantha", "say": "Sorry, quick question." }
+  ],
+  "after": [
+    { "label": "closing question one", "voice": "Daniel", "say": "Can it join a call today?" },
+    { "label": "closing question two", "voice": "Samantha", "say": "Where does the name come from?" }
+  ],
+  "goodbye": { "label": "goodbye", "voice": "Daniel", "say": "No more questions. Thank you." },
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 3
+}

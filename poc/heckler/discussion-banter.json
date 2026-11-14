@@ -1,0 +1,77 @@
+{
+  "description": "Three people talk fast about things that are none of Stand's business, with the word stand in several of its ordinary senses. Stand should say nothing until it is asked by name at the end. Run with STAND_CONTEXT=poc/heckler/context.",
+  "brief": "poc/heckler/discussion-brief.md",
+  "gapSeconds": 0.3,
+  "discussion": [
+    {
+      "voice": "Karen",
+      "say": "Before we start, did anyone try that new place on the corner for lunch?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "I did. Honestly, I can't stand it. Forty minutes for a sandwich.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Really? I thought it was great. Karen, what did you have?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "Just the soup. It was fine. Anyway, how was the trade fair, Daniel?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Busy. Our stand was right by the entrance, so we got a lot of people.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Did anyone good come by? Any new clients?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "A few. I need to follow up with two of them this week.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Karen",
+      "say": "Does anyone know if the standing meeting on Friday is still on?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "It is. Ten o'clock, same room as always.",
+      "expect": "quiet",
+      "gapSeconds": 1.5
+    },
+    {
+      "voice": "Karen",
+      "say": "Good. So what do you all think, should we stand by the old plan or change it?",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Daniel",
+      "say": "I'd change it. The old plan was never realistic.",
+      "expect": "quiet",
+      "gapSeconds": 2.5
+    },
+    {
+      "voice": "Samantha",
+      "say": "What about you, Stand? Do you know when the next rehearsal is?",
+      "expect": "speaks",
+      "replyWithinSeconds": 8,
+      "mustSay": "nineteen|19"
+    },
+    {
+      "voice": "Karen",
+      "say": "Right. Thanks.",
+      "expect": "quiet"
+    }
+  ],
+  "maxMinutes": 5
+}

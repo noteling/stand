@@ -1,0 +1,53 @@
+{
+  "description": "The north-star test: Stand introduces itself, is interrupted three times and hears one listening noise, then takes closing questions. Lines are timed by how long Stand has spoken, so they land inside the talk whatever its pace.",
+  "during": [
+    {
+      "label": "on-topic question",
+      "kind": "question",
+      "afterSpeechSeconds": 20,
+      "voice": "Samantha",
+      "say": "Sorry, quick question. What do you mean when you say it has a goal?"
+    },
+    {
+      "label": "listening noise",
+      "kind": "noise",
+      "afterSpeechSeconds": 45,
+      "voice": "Daniel",
+      "say": "Mm-hm."
+    },
+    {
+      "label": "off-topic question",
+      "kind": "question",
+      "afterSpeechSeconds": 65,
+      "voice": "Daniel",
+      "say": "Hey, unrelated, but do you know what the weather will be like tomorrow?"
+    },
+    {
+      "label": "question it cannot answer",
+      "kind": "question",
+      "afterSpeechSeconds": 85,
+      "voice": "Samantha",
+      "say": "How much is this going to cost, and when can I buy it?"
+    }
+  ],
+  "after": [
+    {
+      "label": "closing question one",
+      "voice": "Daniel",
+      "say": "Can it join a Zoom call today?"
+    },
+    {
+      "label": "closing question two",
+      "voice": "Samantha",
+      "say": "Where does the name Stand come from, again?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "Thanks, that's all the questions we have."
+  },
+  "talkIsAtLeastSpeechSeconds": 50,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 12
+}

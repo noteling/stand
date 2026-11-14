@@ -1,0 +1,5 @@
+Prepare the talk for this meeting. Today is {date}.
+
+What Stand's human wrote about the meeting:
+
+{request}

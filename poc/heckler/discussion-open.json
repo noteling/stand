@@ -1,0 +1,44 @@
+{
+  "description": "Stand sits in a discussion with no brief at all. With nothing it is there for, it should stay out of what the people decide, answer when asked by name (that it has no view, or with a fact from its notes that bears on the question, or that it does not know), and answer a question put to the whole room when it can find the answer and nobody else has it. Run with STAND_CONTEXT=poc/heckler/context.",
+  "gapSeconds": 0.9,
+  "discussion": [
+    {
+      "voice": "Daniel",
+      "say": "Okay, the next session. I'd like to bring it forward to the twelfth of November.",
+      "expect": "quiet"
+    },
+    {
+      "voice": "Samantha",
+      "say": "The twelfth is fine with me. Shall we settle on that?",
+      "expect": "quiet",
+      "gapSeconds": 3
+    },
+    {
+      "voice": "Daniel",
+      "say": "Good, the twelfth then. Stand, what do you think of that?",
+      "expect": "speaks",
+      "mustSay": "no (particular |real |strong )?(view|opinion|preference)|don't have|do not have|nineteen|19"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Fair enough. Stand, what was the budget for the pilot?",
+      "expect": "speaks",
+      "replyWithinSeconds": 8,
+      "mustSay": "don't|do not|couldn't|could not|no information|not"
+    },
+    {
+      "voice": "Daniel",
+      "say": "Never mind. Does anyone know how many people came on Tuesday?",
+      "expect": "speaks",
+      "gapSeconds": 4,
+      "replyWithinSeconds": 8,
+      "mustSay": "fourteen|14"
+    },
+    {
+      "voice": "Samantha",
+      "say": "Okay. I think that's everything for today.",
+      "expect": "quiet"
+    }
+  ],
+  "maxMinutes": 5
+}

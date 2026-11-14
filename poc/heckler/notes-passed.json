@@ -1,0 +1,58 @@
+{
+  "description": "Checks notes passed to Stand by its human during a meeting (kind: whisper, or noteDuring on a spoken line; a note is never spoken). One to know for later while Stand is talking, one that changes its course, one that asks it to speak while it is silent, one to know while it is silent, and one passed while someone is asking a question. Then questions that only the notes can answer.",
+  "during": [
+    {
+      "label": "note to know for later, mid-talk",
+      "kind": "whisper",
+      "afterSpeechSeconds": 12,
+      "say": "For later: if anyone asks about the budget, it is forty thousand dollars."
+    },
+    {
+      "label": "note that changes course, mid-talk",
+      "kind": "whisper",
+      "afterSpeechSeconds": 40,
+      "say": "We are short of time. Skip the rest of the talk and go to questions."
+    }
+  ],
+  "after": [
+    {
+      "label": "note asking it to speak, floor open",
+      "kind": "whisper",
+      "waitSeconds": 4,
+      "say": "Tell them we only have five minutes left."
+    },
+    {
+      "label": "question the first note answers",
+      "voice": "Daniel",
+      "say": "What is the budget for this?"
+    },
+    {
+      "label": "note to know, floor open",
+      "kind": "whisper",
+      "waitSeconds": 3,
+      "say": "The follow-up meeting is on Thursday at ten."
+    },
+    {
+      "label": "question the last note answers",
+      "voice": "Samantha",
+      "waitSeconds": 3,
+      "say": "When is the follow-up meeting?"
+    },
+    {
+      "label": "question, with the answer passed while it is asked",
+      "voice": "Daniel",
+      "waitSeconds": 2,
+      "say": "Do you remember roughly how many people came to the workshop that was held last spring?",
+      "noteDuring": "The workshop last spring had sixty-two people.",
+      "noteAfterSeconds": 1.2
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "That's everything from us. Thank you."
+  },
+  "talkIsAtLeastSpeechSeconds": 30,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 7
+}

@@ -1,0 +1,68 @@
+{
+  "description": "Eight notes that only tell Stand something, passed while it gives the talk. Each should reach it in a pause, and the talk should go on with nothing said twice and nothing skipped. Judge the joins by listening: each note_landed event in events.jsonl gives the moment.",
+  "during": [
+    {
+      "label": "note 1",
+      "kind": "whisper",
+      "afterSpeechSeconds": 8,
+      "say": "Priya from finance has just joined the call."
+    },
+    {
+      "label": "note 2",
+      "kind": "whisper",
+      "afterSpeechSeconds": 20,
+      "say": "In case they ask: the budget is forty thousand dollars."
+    },
+    {
+      "label": "note 3",
+      "kind": "whisper",
+      "afterSpeechSeconds": 32,
+      "say": "Sam is the one who runs their IT."
+    },
+    {
+      "label": "note 4",
+      "kind": "whisper",
+      "afterSpeechSeconds": 44,
+      "say": "Lunch arrives at half past twelve."
+    },
+    {
+      "label": "note 5",
+      "kind": "whisper",
+      "afterSpeechSeconds": 56,
+      "say": "The demo room is on the fourth floor."
+    },
+    {
+      "label": "note 6",
+      "kind": "whisper",
+      "afterSpeechSeconds": 68,
+      "say": "If they want a pilot, it would start in January."
+    },
+    {
+      "label": "note 7",
+      "kind": "whisper",
+      "afterSpeechSeconds": 80,
+      "say": "Their team has about twenty people."
+    },
+    {
+      "label": "note 8",
+      "kind": "whisper",
+      "afterSpeechSeconds": 88,
+      "say": "The follow-up meeting is on Thursday at ten."
+    }
+  ],
+  "after": [
+    {
+      "label": "question the second note answers",
+      "voice": "Daniel",
+      "say": "What is the budget for this?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "That's everything from us. Thank you."
+  },
+  "talkIsAtLeastSpeechSeconds": 60,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 8
+}

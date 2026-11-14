@@ -1,0 +1,17 @@
+{
+  "description": "A one-minute check of recovery from junk audio: an echo that repeats a half-sentence, then a harsh tone. Stand may stop, but should carry on by itself once it is quiet.",
+  "during": [
+    {
+      "label": "echo then howl",
+      "kind": "noise",
+      "afterSpeechSeconds": 15,
+      "voice": "Samantha",
+      "say": "I need to, I need to, I need to, I need to, I need to, I need to",
+      "howlSeconds": 2
+    }
+  ],
+  "after": [],
+  "talkIsAtLeastSpeechSeconds": 600,
+  "talkEndsAfterQuietSeconds": 600,
+  "maxMinutes": 1.2
+}
