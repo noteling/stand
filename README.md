@@ -490,6 +490,7 @@ The user proposed publishing a first disk image. Three things were settled first
 `mac/scripts/package.sh --release` makes the version: only from a commit, notarized, named `Stand-<version>.dmg`, with its checksum.
 
 - **Checked, with no voice model:** with the test settings as they were, the brain looked an order up through a connected tool without asking and asked before cancelling one. With the new defaults it asked before the lookup too, and before reading a file outside its folders; with nobody saying yes it did neither, and still answered from the notes in under a second.
+- **Checked on the image that was built** (0.1.0, from commit `eca21a0`): Apple accepted the app and the disk image, and Gatekeeper calls both "Notarized Developer ID". The app taken out of the image and run in an empty folder of its own sets the folder up with the cautious settings, answers from a note in 0.9 seconds, asks before reading a file outside its folders, and passes the north-star script: 8 sections of 8, every question answered within 1.8 seconds, 22 cents. The Intel half starts through Rosetta. The file on GitHub comes back down with the right checksum.
 - **Not checked:** whether the downloaded app hears and speaks. No person has run Stand under the signature a download carries, and macOS asks for its two permissions again there. The first version goes up as a draft until someone has.
 
 ### Status (2026-11-14, in the open)
