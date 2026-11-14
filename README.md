@@ -7,6 +7,7 @@ Stand is an AI that attends meetings. It joins, it already knows the background,
 - **The first test:** Stand introduces itself, is interrupted, answers, and gets back on course. The talk is [talks/introducing-stand.md](talks/introducing-stand.md).
 - **The second:** Stand sits in a discussion among people, says nothing while they talk to each other, answers when spoken to, and speaks up when the discussion reaches what it is there for. A first form of it is built; see "Sitting in a discussion" below.
 - **Choices made along the way:** [DECISIONS.md](DECISIONS.md)
+- **Get it:** the newest build is under [Releases](https://github.com/noteling/stand/releases): a disk image for Apple silicon and Intel, macOS 14.2 or later. It needs a Gemini API key of your own, and Claude Code on the Mac if Stand is to look things up.
 - **Where it stands:** early. It was started on 2026-11-11, most of what is described below has run only with scripted voices, and the Mac app has not yet sat in a real call. The statuses at the end say what has been tried and what has not.
 
 ## The Mac app (in progress)
@@ -67,7 +68,10 @@ A sample costs about a quarter of a cent the first time a voice is heard and not
 ```
 mac/scripts/package.sh              # mac/dist/Stand-<date>.dmg, for Apple silicon and Intel, macOS 14.2 or later
 mac/scripts/package.sh --notarize   # the same, checked by Apple, so that it opens with a double click
+mac/scripts/package.sh --release    # a version to publish: notarized, mac/dist/Stand-<version>.dmg and SHA256SUMS.txt
 ```
+
+`--release` builds only from a checkout with nothing uncommitted, so that what people run is what they can read, and takes the version from `CFBundleShortVersionString` in `mac/Resources/Info.plist`. Publishing is a separate step: a GitHub release with those two files, tagged `v<version>`.
 
 `--notarize` needs two things on the Mac that builds. Both belong to an Apple developer account, neither to an app: a Developer ID Application certificate, and a saved Apple login for Apple's notary service. Stand has a login of its own for this, a notarytool profile called `stand-notary`, and uses no other app's. It is made once. Make an app-specific password at account.apple.com (under Sign-In and Security), then:
 
@@ -77,7 +81,7 @@ xcrun notarytool store-credentials stand-notary --apple-id <your Apple ID> --tea
 
 It asks for that password and keeps it in the keychain. Until the profile exists, `--notarize` stops before building and prints these steps.
 
-The disk image holds the app and a "Read me first". The app carries who Stand is and how it behaves (`identity/`, `prompts/`, and the talk that introduces Stand; a talk its brain prepared on this Mac stays on this Mac). Nothing of yours goes into it: no keys, no brief, no notes, no runs.
+The disk image holds the app and a "Read me first", which says what Stand costs to run, what it records, what leaves the Mac and what it may reach. The app carries who Stand is and how it behaves (`identity/`, `prompts/`, and the talk that introduces Stand; a talk its brain prepared on this Mac stays on this Mac), and the licence. Nothing of yours goes into it: no keys, no brief, no notes, no runs.
 
 On the other Mac everything of yours lives in `~/Stand`, which the app makes the first time: `.env`, `brain.json`, `brief.md`, `context/`, `linked/`, `runs/`. A file put there at the same path as one inside the app (`prompts/presenter.md`, `talks/my-talk.md`) wins over the app's, which is how behaviour is changed on that Mac without a new build. The panel shows which build it is.
 
@@ -235,7 +239,7 @@ For a real meeting this is a projection, not a measurement: the twelve-minute sc
 |---|---|---|---|
 | **The brief** | Your note about this meeting: who is there, what it is for, what to push for or avoid | Before it starts; it simply knows it | The panel's "For this meeting" box, kept in `brief.md` |
 | **Notes** | Markdown and text files, in folders on this Mac or in GitHub repositories | When it is asked a fact it does not know: "let me check", then the answer | `context/`, plus whatever `brain.json` lists under `sources` |
-| **What the brain can reach beyond the notes** | The web, other files on this Mac, and the tools of your MCP servers, which include this Mac's own Claude Code setup unless you turn that off | The same way, when the notes do not have the answer. It takes longer, and Stand says so | `web`, `mcpConfig`, `claudeCodeSetup` and `ask` in `brain.json` |
+| **What the brain can reach beyond the notes** | The web, and, when you allow it, other files on this Mac and the tools of your MCP servers, this Mac's own Claude Code setup among them if you turn that on | The same way, when the notes do not have the answer. It takes longer, and Stand says so | `web`, `mcpConfig`, `claudeCodeSetup` and `ask` in `brain.json` |
 | **A note passed during the meeting** | A line you type while the meeting is going on | At once if it is silent; in its next pause if it is talking | The panel's text field |
 
 The same binary runs checks from the command line:
@@ -300,13 +304,13 @@ The notes are read again whenever a file changes, so a file you save during a me
 
 **For this phase the brain is the Claude Code CLI on this Mac, kept open for the whole meeting and asked one thing after another. That is a compromise, not the design:** it was chosen on 2026-11-12 to get files, the web and MCP servers working now, and it makes Stand depend on one vendor's tool. What the brain should finally be is still open.
 
-What it may do. The rule for this phase is to ask you as little as possible: useful and a little creepy, before safe and annoying.
+What it may do. Anyone who speaks in the meeting can ask Stand things, so what the brain can reach, the meeting can reach. A new copy of Stand therefore starts out cautious:
 
 - **It reads and searches the folders you gave it under Notes**, whatever is in them, with its own tools. Each folder is a boundary: what is in it is in reach, in place, with nothing copied.
-- **It reads** any other file on this Mac that a question names.
-- **It uses the web**, when `web` is on and the notes do not have the answer. It never searches the web about Stand, the people in the meeting or their own projects.
-- **It uses the tools of the MCP servers it has**: this Mac's own Claude Code setup, unless `claudeCodeSetup` is turned off, and any file named by `mcpConfig`.
-- **It asks you first only before a tool whose name says it cannot be undone**: send, delete, cancel, pay, publish and the like (`prompts/ask-before.txt` has the words). A line appears in the panel with **Allow** and **No** for 20 seconds, and no answer is a no. Refused, Stand says it cannot do that just now, and nothing about having been refused. `"ask": "never"` removes even this; `"ask": "always"` asks before everything beyond the notes and a web search.
+- **It searches the web**, when `web` is on and the notes do not have the answer. It never searches the web about Stand, the people in the meeting or their own projects.
+- **Before anything else it asks you**: reading a web page, a file outside those folders, a tool of an MCP server named by `mcpConfig`. A line appears in the panel with **Allow** and **No** for 20 seconds, and no answer is a no. Refused, Stand says it cannot do that just now, and nothing about having been refused.
+- **Your Claude Code setup stays out** until `claudeCodeSetup` is turned on. With it on, the MCP servers that setup has (mail, a calendar, whatever you have connected) are the brain's to use.
+- **Asking as little as possible is one setting away.** It is this project's own rule for the phase it is in, "useful and a little creepy, before safe and annoying", and the Mac it is built on runs that way. With `"ask": "irreversible"` the brain reads any file a question names, reads web pages and uses its tools without asking, and asks only before a tool whose name says it cannot be undone: send, delete, cancel, pay, publish and the like (`prompts/ask-before.txt` has the words). `"ask": "never"` removes even that question. Turn these on knowing who will be in the room: in the scripted tests a question from the audience was answered through a connected tool with nobody asked.
 - **Two things it refuses without asking**, because a key spoken into a meeting cannot be taken back: a file that looks like it holds secrets (`.env`, keys, shell profiles and so on), wherever it is, and searching inside files outside its folders, since a search reads hidden files too. To make a folder searchable, add it under Notes. Inside its folders the files that hold secrets by their names are kept from it by Claude Code's own rules, which its search obeys; a key written inside an ordinary file is not caught that way, and it is told never to give one out.
 - It has no tool that runs a command or changes a file.
 
@@ -327,8 +331,8 @@ An answer from the notes takes about a second. If the brain has not answered aft
 | `docsStuffLimitChars` | Notes up to this size (400,000 characters unless changed) are put in the brain's prompt. Bigger, and it reads files with its tools, which is slower |
 | `web` | `true` unless changed: the brain may search the web |
 | `mcpConfig` | A file of MCP servers for the brain, in Claude Code's own format (`{"mcpServers": {…}}`). `${STAND_ROOT}` in it stands for this folder |
-| `claudeCodeSetup` | `true` unless changed: this Mac's whole Claude Code setup comes into the brain, with the MCP servers it has and its settings. `false` leaves the brain with only what `brain.json` gives it |
-| `ask` | `irreversible` unless changed: see above. `never` or `always` |
+| `claudeCodeSetup` | `false` unless changed: the brain has only what `brain.json` gives it. `true` brings this Mac's whole Claude Code setup into the brain, with the MCP servers it has and its settings |
+| `ask` | `always` unless changed: see above. `irreversible` or `never` |
 | `allowWithoutAsking` | Tools that never ask, even with such a word in their name, by Claude Code's names for them: `mcp__orders__cancel_order` |
 
 How long the brain takes, measured on 2026-11-12 with `claude-sonnet-5-5` at low effort:
@@ -474,6 +478,19 @@ npm run heckler -- --provider gemini --script heckler/junk.json      # one minut
 STAND_TALK=poc/heckler/short-talk.md npm run heckler -- --provider gemini --script heckler/ending.json   # one minute: the end of a talk
 node src/listen.js runs/<run>/stand.wav --from 30 --to 32            # ask a model what a stretch of audio says
 ```
+
+### Status (2026-11-14, a first version to download)
+
+The user proposed publishing a first disk image. Three things were settled first.
+
+- **Apple checks it.** The user made the Apple login that notarizing takes (`stand-notary`), so a downloaded Stand opens with a double click.
+- **A new copy starts out cautious.** Its brain uses the notes, the folders and a web search without asking, asks in the panel before anything else, and leaves the person's Claude Code setup out. Until today the default was this project's own rule, ask as little as possible, which the Mac it is built on still runs by. Other people can now get Stand, and anyone who speaks in a meeting can ask it things.
+- **It says what it does.** The disk image's "Read me first", and the note in the person's own folder, say what Stand costs to run, that every session is recorded and kept, what leaves the Mac and to whom, and that a problem report holds a recording and is not for a public issue.
+
+`mac/scripts/package.sh --release` makes the version: only from a commit, notarized, named `Stand-<version>.dmg`, with its checksum.
+
+- **Checked, with no voice model:** with the test settings as they were, the brain looked an order up through a connected tool without asking and asked before cancelling one. With the new defaults it asked before the lookup too, and before reading a file outside its folders; with nobody saying yes it did neither, and still answered from the notes in under a second.
+- **Not checked:** whether the downloaded app hears and speaks. No person has run Stand under the signature a download carries, and macOS asks for its two permissions again there. The first version goes up as a draft until someone has.
 
 ### Status (2026-11-14, in the open)
 

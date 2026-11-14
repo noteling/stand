@@ -7,5 +7,6 @@
     }
   ],
   "web": false,
-  "claudeCodeSetup": false
+  "claudeCodeSetup": false,
+  "ask": "irreversible"
 }
