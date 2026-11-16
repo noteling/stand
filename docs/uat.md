@@ -182,7 +182,7 @@ Stand and the call on this Mac, the other person truly remote, as on 2026-11-11.
 
 ## 5. On the other Mac
 
-Download `Stand-0.2.0.dmg` from the release at github.com/noteling/stand/releases. It is a draft until you have tried it, so sign in to GitHub to see it. The draft of 0.1.0 is still beside it; that one is from the 14th and has no pages, no watch and no ear. Paste the Gemini key, allow the two permissions. Apple has checked the build, and nobody has yet run Stand under the signature a download carries.
+Take `Stand-0.2.0.dmg` there. It is in `mac/dist/` on this Mac, and it will be under github.com/noteling/stand/releases as a draft once you say so (a draft is seen only when signed in to GitHub). The draft of 0.1.0 that is there now is from the 14th and has no pages, no watch and no ear. Paste the Gemini key, allow the two permissions. Apple has checked the build, and nobody has yet run Stand under the signature a download carries.
 
 - Does macOS open it with a double click, with no "Open Anyway"?
 - Does it start, talk and hear? Does the panel say the brain was found (Claude Code signed in there)?
@@ -199,7 +199,7 @@ Download `Stand-0.2.0.dmg` from the release at github.com/noteling/stand/release
 
 ## Decided
 
-- A second version to download (2026-11-16): 0.2.0, at your word ("Build a new dmg version, and push whatever we have into remote git as well"). It has the pages, the watch, the ear and Chrome in it, and everything is on `main`. It is a draft, as 0.1.0 still is: publishing is yours, after the five minutes in step 5.
+- A second version to download (2026-11-16): 0.2.0, at your word ("Build a new dmg version, and push whatever we have into remote git as well"). It has the pages, the watch, the ear and Chrome in it. Built and checked by Apple, and kept in `mac/dist/`. Putting it up as a draft release, as 0.1.0 is, waits for your word, and publishing either for the five minutes in step 5.
 - Pages on a screen (2026-11-14): your fear was hand, brain and voice out of step, "like a yips patient". So nothing is kept in time. One part decides the order: the page goes up between sections, it is looked at, and only then is Stand told to speak. You shrank the problem to that (someone else joins the call and shares; the material is there), and asked that the audience be able to say "go back to the previous page". Both are built, in a window of Stand's own. A slide program and a real wiki are for a later try on a work computer.
 - What a downloaded Stand may reach (2026-11-14): it starts out cautious. It looks in the notes and folders it is given and searches the web; before anything else it asks in the panel; and the person's Claude Code setup stays out. Anyone who speaks in a meeting can ask Stand things, and other people now get the app. I recommended this and you said to continue. **Your own Mac is unchanged**: its `brain.json` says `"ask": "irreversible"` and `"claudeCodeSetup": true`, which is "ask as little as possible". To make that the default for everybody again, it is one line each in `mac/Resources/brain.default.json` and `BrainSettings`.
 - A first version to download (2026-11-14): 0.1.0, as a pre-release, checked by Apple. You made the Apple login for it (`stand-notary`).

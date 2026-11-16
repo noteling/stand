@@ -163,7 +163,13 @@ mac/scripts/package.sh --notarize   # the same, checked by Apple, so that it ope
 mac/scripts/package.sh --release    # a version to publish: notarized, mac/dist/Stand-<version>.dmg and SHA256SUMS.txt
 ```
 
-`--release` builds only from a checkout with nothing uncommitted, so that what people run is what they can read, and takes the version from `CFBundleShortVersionString` in `mac/Resources/Info.plist`. Publishing is a separate step: a GitHub release with those two files, tagged `v<version>`.
+`--release` builds only from a checkout with nothing uncommitted, so that what people run is what they can read, and takes the version from `CFBundleShortVersionString` in `mac/Resources/Info.plist`. Publishing is a separate step: a GitHub release with those two files, tagged `v<version>`. The surest such checkout is one made from the commit for the purpose, since the script copies `identity/` and `prompts/` as they lie:
+
+```
+git worktree add --detach /tmp/stand-release <commit>
+STAND_DIST="$PWD/mac/dist" /tmp/stand-release/mac/scripts/package.sh --release
+git worktree remove /tmp/stand-release
+```
 
 `--notarize` needs two things on the Mac that builds. Both belong to an Apple developer account, neither to an app: a Developer ID Application certificate, and a saved Apple login for Apple's notary service. Stand has a login of its own for this, a notarytool profile called `stand-notary`, and uses no other app's. It is made once. Make an app-specific password at account.apple.com (under Sign-In and Security), then:
 
@@ -613,8 +619,10 @@ The user: "Build a new dmg version, and push whatever we have into remote git as
   - Asked what a page says, Stand answered "I don't know. The page doesn't mention" it, and the page does. Its instructions for that case now say never to say that a page does not say something: "I don't know", and nothing about the page, in the nine runs since.
   - In one run of the ten the voice model wrote its tool calls into its own transcript as text and made none of them, so a page that was asked for never came. It is in none of the 890 sessions kept before. Nothing catches it yet.
 - **Seen in the ear's list that morning:** five remarks taken for a call in 410 judgments ("Come here", "Look at this"), where the evening before had one in 421. The listening model's answers move from one day to the next.
+- **Checked on the image that was built** (0.2.0, from commit `c7eb0ae`, in a checkout made from that commit and nothing else): Apple accepted the app and the disk image, and Gatekeeper calls both "Notarized Developer ID". The app taken out of the image holds the one talk and both entitlements, and run in an empty folder of its own it sets the folder up, puts the test pages up (6 of 6 read from pictures, and the long page followed down and scrolled as in the repo's build), and passes the north-star script: 8 sections of 8, every question answered within 2.4 seconds, the watch asked 34 times and silent, 25 cents. The Intel half starts through Rosetta.
+- **Where it is:** `mac/dist/Stand-0.2.0.dmg` on the Mac that built it. It goes up on GitHub as a draft release when the user says so, and the pull request that carries all of this is theirs to merge: they asked for the image and the push.
 - **Not checked, and not checkable without a person:** hearing and speaking under the signature a download carries, as for 0.1.0, and Chrome under that signature, where macOS asks once whether Stand may control it.
-- **Cost:** $1.99 for eleven scripted talks, and about 4 cents for the lists.
+- **Cost:** $2.24 for twelve scripted talks, and about 4 cents for the lists.
 
 ### Status (2026-11-15, evening: pages in your own Chrome)
 
