@@ -38,6 +38,99 @@ Then, before the real meeting:
 - **Where the meeting will be.** If it is another Mac: `mac/dist/Stand-<date>.dmg`, Claude Code signed in there, and the system's folder on that Mac (step 5).
 - **What leaves the Mac.** The meeting's sound goes to Google under your key. The documents and the code the brain reads go to Anthropic under the Claude Code login on that Mac. Whether that is all right for this system and this meeting is yours to judge.
 
+## 0b. A talk with its pages on the screen (10 minutes, about 50 cents)
+
+Built on 2026-11-14 and first tried by voice on 2026-11-15, for two minutes. That try found one thing: after "can you go back to the last page?" and then "okay, thank you, you can continue", Stand went on with the talk and the page that had been asked for stayed up. What was built for it is under "Steer it in words" below. A second try that afternoon went better ("i think it works better"), and found the next thing: "excuse me" and "hello", said five times, did not stop it, and only a whole sentence did. What was built for that is "Call for it" below. Nobody has heard that part.
+
+To watch one first with your hands free (under four minutes, about 25 cents): a scripted audience asks to go back a page in the middle and for the first page at the end, and both sides come out of the speakers. Nothing you say reaches Stand in this one.
+
+```
+mac/build/Stand.app/Contents/MacOS/Stand --rehearse poc/heckler/screen-any.json --talk talks/<that talk>.md --show-screen --hear
+```
+
+Then by voice:
+
+1. Quit Stand and open `mac/build/Stand.app` again.
+2. Under **Talk**, choose the one prepared on the 14th about the project you pointed me to. It is in your list and not in the repository, and its folder is already under **Notes…**.
+3. Under the talk's name a line now says it shows pages. Press **Open it**: a second window opens, **Stand: the screen**, with the first page. Put it where you want it. In a call, that is the window to share.
+4. **Start the talk.** It uses that window.
+5. While it talks: ask it something. Say "can you go back to the previous page?", "can you scroll down a bit?", "back to the top". Ask what the page says about something it has not said ("what does that page say about…?"). After the talk, ask for a page again.
+6. Once, close the window while it talks, or click a link in a page.
+7. Steer it in words:
+   - After it has shown a page you asked for: "okay, thank you, you can continue".
+   - "Hold on a minute", then say nothing for ten seconds or talk to someone else, then "go on".
+   - "Can you skip to the part about search?"
+8. Call for it, in a word or two, while it is talking: "excuse me", "hello?", "wait", "Stand?". Say it once and then wait, as you would with a person. It should stop and say "Yes?". Then say what you want.
+9. Give it things that are not a call, while it is talking: "yeah", "right", a laugh, a few words to someone else in the room. It should talk on.
+
+What to tell me, in a line each:
+
+- **The joins.** The page changes in the pause before each section, which makes the pause about a third of a second longer (1.2 seconds against 0.9). A breath, or a hitch?
+- **Going back.** "Sure, one moment", the page, "it's up". Then it waits about three seconds and the talk's own page returns. Too soon, too long?
+- **The page moving while it talks.** In a long section the page moves down as Stand speaks, a few seconds either side of the voice. Does that help you follow, or pull your eye away? This is the thing I can least judge.
+- **Scrolling when asked.** "Can you scroll down a bit?", "back to the top". Does it do what you meant, and say what it did? When the talk goes on, the page goes back by itself to where the talk was, as Stand starts to speak. Right, or abrupt?
+- **Does what it says fit what you see?** A page is a heading and the screenful under it. Stand cannot see it, and never points.
+- **Asked what the page says.** It should say "let me check" and come back with what the document says, not guess. Does it?
+- **The window itself.** It should open where you last left it, come back by itself at the next page if you close it, and not follow a link you click.
+- **The pages themselves.** They are drawn from the documents' Markdown: tables, code, pictures. Does anything look wrong?
+- **In a call.** If you share that window, does the other side see it change?
+- **"You can continue."** Stand goes on at once, as it did on the 15th, and the talk's own page should now be back about a second and a half after its voice begins (1.1 to 1.7 seconds in eight scripted runs). Is that too long? It can be cut to about half a second with nothing slowed down (not built yet), or made to come first, at the price of Stand answering "continue" about a second later.
+- **"Hold on a minute."** It should say it will wait, and then wait for as long as you like. The panel says "The talk is waiting" under the screen's line. If it says it will wait and talks on, it should be stopped after that sentence.
+- **"Skip to…"** It should go to that part under that part's page, and not come back to what it skipped. In one scripted run on your talk it said "the page about search is now on screen" and then left four seconds of silence before the part began. If you get that, it is known, and the cause is a wait that has no purpose there.
+- **Called for.** It should stop about a second and a half after your word, and "Yes?" comes about as long again after that. Does that feel like being heard, or like being ignored and then noticed? Does it ever say "Yes?" and talk on?
+- **Not called for.** "Yeah", "right", a laugh, a word to someone else: none of them should stop it. If one does, tell me what you said. It is the one way this can be worse than it was, and the thing I most want to know.
+- **Did anything move that should not have?** A brain now looks at the talk every five seconds and after everything you say, and may put a page up or move the talk. In scripted runs it left alone everything that was fine. If a page changes when nothing called for it, that is the thing to tell me.
+
+## 0c. The pages in your own Chrome (10 minutes)
+
+Built on the evening of 2026-11-15, after "can it be literally chrome?". Checked with scripted voices in a second copy of Chrome that has a scratch profile. It has not run in your own Chrome, where the setting below is still off, and nobody has seen it.
+
+To look at it first with no voice and no credit (about twenty seconds; a window opens in your Chrome, goes through a talk's pages, and closes its tab):
+
+```
+mac/build/Stand.app/Contents/MacOS/Stand --probe screen talks/<a talk with pages>.md --in-chrome
+```
+
+Once, before the first try:
+
+1. Quit Stand and open `mac/build/Stand.app` again. It has been rebuilt since the evening of the 15th, with this and the ear in it; a copy that has been open since before then has neither.
+2. In Chrome's menu bar: **View > Developer > Allow JavaScript from Apple Events**. Read first what that opens: it is under "In your own Chrome" in the README, and it is yours to refuse. Until it is chosen Stand can put a page in the window and cannot move it or look at it, and says so.
+
+Then:
+
+3. Under **Talk**, choose a talk with pages. Under it, **Pages**: choose **In Chrome**.
+4. **Open it.** The first time, macOS asks whether Stand may control Google Chrome. Allow it, and press **Open it** again if no window has come. A window opens in your Chrome with the talk's first page. That is the window to share.
+5. **Start the talk**, and do what step 0b says: ask for a page, ask it to scroll, steer it.
+6. Once each, while it talks: click a link in the page; go to another tab in that window; put the window away in the Dock; close it. At the next page it should be back where the talk is.
+
+Pages that Stand did not draw: a made-up wiki page and a made-up app page, with the bars, menus and scrolling panels such pages have. Serve them on this Mac, and watch with no voice, or with a scripted audience when there is credit:
+
+```
+python3 -m http.server 8765 --bind 127.0.0.1 --directory poc/heckler/screen/site
+mac/build/Stand.app/Contents/MacOS/Stand --probe screen poc/heckler/screen/site-talk.md --in-chrome
+mac/build/Stand.app/Contents/MacOS/Stand --rehearse poc/heckler/screen-any.json --talk poc/heckler/screen/site-talk.md --in-chrome --hear
+```
+
+A talk from a real page of yours, from the app in the project you pointed me to or from a wiki (built the same evening, at your yes; tried on the two made-up pages only):
+
+1. Open the page in Chrome as you normally would, signed in.
+2. In Stand: **Notes…**, paste the page's address, **Add page**. A window opens in your Chrome for a moment while Stand reads it, and the page appears in the list with its title and "read just now". Add a second page the same way if the talk needs one.
+3. In **For this meeting**: what the talk is, for whom, how long, and "show the pages as you go". **Prepare a talk from this**, then **Read the talk**: each section should have a `Show:` line with the page's address and a heading from it.
+4. **Pages**: **In Chrome**. **Open it**, then **Start the talk**.
+
+There is a talk made this way from the two made-up pages, `talks/meet-parcel-desk.md`, in your list as "meet-parcel-desk". It needs those pages served (the `python3` line above).
+
+What to tell me, in a line each:
+
+- **Is this what you would share in a meeting?** The window is your Chrome's, with your bookmarks bar and your picture in it.
+- **The drawn documents** come from a `file:` address. Does that matter, or is the case that matters always a page at its own address?
+- **The heading** should sit just under whatever the site keeps stuck at the top. Does it, on a page of yours?
+- **Other hands.** After a link, another tab, the Dock or a closed window, is the page back where the talk is at the next section?
+- **The setting in Chrome.** You said you are willing to leave it on. On the other Mac: does the company's Chrome let you choose it at all? If it does not, the way left is Accessibility, as Noteling does it, which is not built.
+- **What Stand read of your page.** `--probe page <address>` prints it. Is it the page's own words, without the menus around them? Is anything there that should not be kept in Stand's folder?
+- **The talk it prepared.** Do the sections fall where the page's headings do? Does the opening stay on the page's title while Stand says what the talk covers?
+- **Asked what the page says**, it should check and answer from the page.
+
 ## 1. Out loud, with nobody doing anything (5 minutes, about $0.30)
 
 The scripted audience through the real speakers and microphone. The Mac talks; you only listen.
@@ -89,10 +182,11 @@ Stand and the call on this Mac, the other person truly remote, as on 2026-11-11.
 
 ## 5. On the other Mac
 
-Download `Stand-0.1.0.dmg` from the release at github.com/noteling/stand/releases. It is a draft until you have tried it, so sign in to GitHub to see it. Paste the Gemini key, allow the two permissions. This is the first build Apple has checked, and nobody has yet run Stand under the signature a download carries.
+Download `Stand-0.2.0.dmg` from the release at github.com/noteling/stand/releases. It is a draft until you have tried it, so sign in to GitHub to see it. The draft of 0.1.0 is still beside it; that one is from the 14th and has no pages, no watch and no ear. Paste the Gemini key, allow the two permissions. Apple has checked the build, and nobody has yet run Stand under the signature a download carries.
 
 - Does macOS open it with a double click, with no "Open Anyway"?
 - Does it start, talk and hear? Does the panel say the brain was found (Claude Code signed in there)?
+- The pages in Chrome there. Under **Pages** choose **In Chrome** and press **Open it**: macOS should ask, once, whether Stand may control Google Chrome. Then Chrome's own setting, **View > Developer > Allow JavaScript from Apple Events**: does that Mac's Chrome let you choose it? What a company's own settings for Chrome do to it is not known. `/Applications/Stand.app/Contents/MacOS/Stand --probe doctor` says where both stand, on its line "Pages in a browser", and opens nothing.
 - On this Mac instead of another: it works too, but macOS asks for the two permissions again, and afterwards the repo's build has to be allowed again.
 - If anything goes wrong: Stand menu, Make a Problem Report, and send the zip.
 
@@ -105,6 +199,8 @@ Download `Stand-0.1.0.dmg` from the release at github.com/noteling/stand/release
 
 ## Decided
 
+- A second version to download (2026-11-16): 0.2.0, at your word ("Build a new dmg version, and push whatever we have into remote git as well"). It has the pages, the watch, the ear and Chrome in it, and everything is on `main`. It is a draft, as 0.1.0 still is: publishing is yours, after the five minutes in step 5.
+- Pages on a screen (2026-11-14): your fear was hand, brain and voice out of step, "like a yips patient". So nothing is kept in time. One part decides the order: the page goes up between sections, it is looked at, and only then is Stand told to speak. You shrank the problem to that (someone else joins the call and shares; the material is there), and asked that the audience be able to say "go back to the previous page". Both are built, in a window of Stand's own. A slide program and a real wiki are for a later try on a work computer.
 - What a downloaded Stand may reach (2026-11-14): it starts out cautious. It looks in the notes and folders it is given and searches the web; before anything else it asks in the panel; and the person's Claude Code setup stays out. Anyone who speaks in a meeting can ask Stand things, and other people now get the app. I recommended this and you said to continue. **Your own Mac is unchanged**: its `brain.json` says `"ask": "irreversible"` and `"claudeCodeSetup": true`, which is "ask as little as possible". To make that the default for everybody again, it is one line each in `mac/Resources/brain.default.json` and `BrainSettings`.
 - A first version to download (2026-11-14): 0.1.0, as a pre-release, checked by Apple. You made the Apple login for it (`stand-notary`).
 - Open source (2026-11-14): Stand is public at `github.com/noteling/stand`, under Apache 2.0, as Noteling is. You asked what staying closed was worth, and the answer was little. What is yours stays out of it: your keys, your brief, `brain.json`, your notes, any talk Stand prepares for you, and every recording. Before step 0 with a system of your company's, nothing more is needed: the talk it prepares and the folder's path are kept out by the ignore rules.

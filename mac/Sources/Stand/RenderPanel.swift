@@ -84,6 +84,37 @@ enum RenderPanel {
         waiting.floorOpen = true
         waiting.elapsed = 131
         waiting.standText = "I'm ready for your questions now."
+        let withPages = SessionController(live: false)
+        withPages.talkShowsPages = true
+        withPages.brief = "Walk the new engineers through the Ledger service. Six minutes. Show the documents as you go."
+        withPages.notesLine = "Notes: 31 notes and 412 other files from 2 places"
+        let inChrome = SessionController(live: false)
+        inChrome.talkShowsPages = true
+        inChrome.pagesInChrome = true
+        inChrome.brief = withPages.brief
+        inChrome.notesLine = withPages.notesLine
+        let notes = SessionController(live: false)
+        notes.brief = withPages.brief
+        notes.notesLine = "Notes: 33 notes and 412 other files from 4 places"
+        notes.showingSources = true
+        notes.sources = [
+            .init(id: "a", name: "context", place: "context", detail: "2 files", problem: nil, index: nil),
+            .init(id: "b", name: "ledger", place: "~/projects/ledger", detail: "29 notes, 412 other files to search", problem: nil, index: 0),
+            .init(id: "c", name: "How-refunds-work", place: "wiki.example.com/display/LEDGER/How+refunds+work", detail: "“How refunds work - Ledger - Wiki”, read 4 min ago", problem: nil, index: 1),
+            .init(id: "d", name: "Runbook", place: "wiki.example.com/display/LEDGER/Runbook", detail: "not read yet", problem: "The browser was sent on to login.example.com and did not get the page. It may want signing in to first: open the page there yourself, and then check again.", index: 2),
+        ]
+        let pagesMissing = SessionController(live: false)
+        pagesMissing.talkShowsPages = true
+        pagesMissing.talkPagesMissing = ["Section 3: ledger/docs/architecture.md has no heading called \"How a refund is recorded\".", "Section 5: There is no document called ledger/docs/runbook.md in the folders Stand was given."]
+        pagesMissing.brief = withPages.brief
+        pagesMissing.notesLine = withPages.notesLine
+        let showing = SessionController(live: false)
+        showing.phase = .running
+        showing.standSpeaking = true
+        showing.elapsed = 147
+        showing.standText = "Each payment is written to the ledger twice, once for each side, and the two entries are checked against each other every night."
+        showing.screenSays = "On the screen for section 4: \"How a payment is recorded\" in ledger/docs/architecture.md, 0.2 s, seen by the page itself"
+        showing.watchSays = "The talk is waiting: someone asked Stand to hold on. It goes on when they say so."
         let ended = SessionController(live: false)
         ended.lastRun = out
         ended.lastRunSummary = "Last run: 2:44, about $0.05"
@@ -95,7 +126,8 @@ enum RenderPanel {
         // view is drawn to a picture, so the pictures have the real pickers and text fields.
         _ = NSApplication.shared
         for (name, controller) in [("idle", idle), ("first-run", firstRun), ("briefed", briefed), ("preparing", preparing), ("prepared", prepared), ("discussion", discussion), ("discussion-no-brief", discussionBare),
-                                   ("discussion-listening", listening), ("stand-asks-you", questioned), ("speaking", speaking), ("asking", asking), ("waiting", waiting), ("ended", ended)] {
+                                   ("discussion-listening", listening), ("stand-asks-you", questioned), ("speaking", speaking), ("asking", asking), ("waiting", waiting), ("ended", ended),
+                                   ("talk-with-pages", withPages), ("talk-with-pages-in-chrome", inChrome), ("notes-with-pages", notes), ("talk-with-pages-missing", pagesMissing), ("pages-showing", showing)] {
             let view = NSHostingView(rootView: PanelView(controller: controller).background(Color(nsColor: .windowBackgroundColor)))
             let window = NSWindow(contentRect: NSRect(origin: .zero, size: view.fittingSize), styleMask: [.borderless], backing: .buffered, defer: false)
             window.contentView = view

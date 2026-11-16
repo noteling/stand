@@ -1,4 +1,5 @@
 import CoreAudio
+import AppKit
 import Foundation
 import StandCore
 
@@ -17,14 +18,30 @@ import StandCore
 /// --raw turns macOS voice processing (its echo cancellation) off; --no-system-audio turns
 /// the system audio tap off. Both exist to show what each contributes.
 enum Probe {
-    static let modes = ["connect", "selfhear", "otherapp", "tap", "brain", "sources", "doctor", "report", "marker", "spend", "prompter", "prepare", "voice"]
+    static let modes = ["connect", "selfhear", "otherapp", "tap", "brain", "sources", "doctor", "report", "marker", "spend", "prompter", "prepare", "voice", "screen", "page", "watch", "ear"]
 
     static func run(mode: String, arguments args: [String]) async throws {
         guard modes.contains(mode) else {
-            throw StandError("usage: Stand --probe connect | selfhear | otherapp | tap | sources | doctor | report | spend | marker <run> | prompter <run> | panel | brain \"question\" | prepare \"what the meeting is\" | voice [name …]  [--raw] [--no-system-audio] [--seconds N]")
+            throw StandError("usage: Stand --probe connect | selfhear | otherapp | tap | sources | doctor | report | spend | marker <run> | ear <run> | prompter <run> | watch <run> | screen <talk.md> | page <address> | panel | brain \"question\" | prepare \"what the meeting is\" | voice [name …]  [--raw] [--no-system-audio] [--seconds N]")
         }
         if mode == "doctor" {
             print(Doctor.report(root: try Project.root()))
+            return
+        }
+        if mode == "screen" {
+            try await screen(arguments: args, root: try Project.root())
+            return
+        }
+        if mode == "page" {
+            try await page(arguments: args, root: try Project.root())
+            return
+        }
+        if mode == "watch" {
+            try await WatchReplay.run(arguments: args, root: try Project.root())
+            return
+        }
+        if mode == "ear" {
+            try await EarProbe.run(arguments: args, root: try Project.root())
             return
         }
         if mode == "marker" {
@@ -80,6 +97,10 @@ enum Probe {
             print(String(format: "\nprepared in %.0f s: %@ (\"%@\", %d sections, %d words)\n", talk.seconds, talk.path, talk.title, talk.sections,
                          talk.text.split(whereSeparator: { $0 == " " || $0.isNewline }).count))
             print(talk.text)
+            if talk.pages > 0 {
+                print("\nIt names a page for \(talk.pages) of its sections" + (talk.pagesNotFound.isEmpty ? ", and all of them are there." : ", and \(talk.pagesNotFound.count) cannot be shown:"))
+                for problem in talk.pagesNotFound { print("  \(problem)") }
+            }
             return
         }
         if mode == "brain" {
@@ -147,6 +168,195 @@ extension Probe {
     /// --silently puts the sample through the panel's own player as it arrives, at no
     /// volume, and says how much of it came out. --as-the-panel presses "Hear it" on the
     /// controller the panel uses, at no volume, and checks what follows.
+    /// The way the app itself gets its window, with no session and no sound: the panel's own
+    /// controller is given the talk and asked for the screen, as `start` asks. The window is
+    /// on the display for about two seconds.
+    @MainActor
+    static func screenAsThePanel(talk: String, root: URL) async -> [String] {
+        var failures = [String]()
+        let controller = SessionController(live: false)
+        controller.talk = talk
+        if !controller.talkShowsPages { failures.append("the panel does not see that \(talk) names pages") }
+        guard let screen = controller.openScreen(root: root) else { return failures + ["no window was opened for \(talk)"] }
+        // With the pages in Chrome (STAND_SCREEN=chrome) the window is the browser's, and is not Stand's to count or measure.
+        let own = !controller.pagesInChrome
+        if screen.place != (own ? .window : .browser) { failures.append("the pages were to go up in \(own ? "Stand's own window" : "Chrome"), and the screen that was made is the other kind") }
+        let windows = NSApplication.shared.windows.filter { $0.title == "Stand: the screen" && $0.isVisible }
+        if windows.count != (own ? 1 : 0) { failures.append("\(windows.count) windows called “Stand: the screen” are on the display, not \(own ? "one" : "none")") }
+        if let window = windows.first {
+            if window.sharingType == .none { failures.append("the window is kept out of screen sharing, and it is the one to share") }
+            if window.frame.width < 900 || window.frame.height < 600 { failures.append("the window is \(Int(window.frame.width)) by \(Int(window.frame.height)), too small to read in a call") }
+        }
+        if let plan = try? String(contentsOf: Project.file(talk, root: root), encoding: .utf8), let page = TalkPlan.sections(in: plan).compactMap(\.show).first {
+            let look = await screen.show(page)
+            if !look.shown { failures.append("its first page did not come up: \(look.problem ?? "")") }
+        }
+        // Starting the talk after the window was opened by hand uses the same window: its human may be sharing it.
+        let again = controller.openScreen(root: root)
+        if again !== screen { failures.append("starting the talk made a second window when one was already open") }
+        let after = NSApplication.shared.windows.filter { $0.title == "Stand: the screen" && $0.isVisible }
+        if after.count != (own ? 1 : 0) { failures.append("after a second start \(after.count) windows are on the display, not \(own ? "one" : "none")") }
+        // And the panel's own "Open it", before the meeting.
+        controller.showScreenNow()
+        try? await Task.sleep(nanoseconds: 900_000_000)
+        if let said = controller.message { failures.append("opening the window from the panel said: \(said)") }
+        try? await Task.sleep(nanoseconds: 1_200_000_000)
+        // And a talk with no pages gets no window.
+        controller.talk = "talks/introducing-stand.md"
+        // (Choosing a talk with no pages closes what the talk before it had open, the tab in Chrome included.)
+        if controller.talkShowsPages || controller.openScreen(root: root) != nil { failures.append("a talk with no pages was given a window") }
+        NSApplication.shared.windows.filter { $0.title == "Stand: the screen" }.forEach { $0.close() }
+        return failures
+    }
+
+    @MainActor
+    static func pageAsThePanel(address: String, root: URL) async -> [String] {
+        var failures = [String]()
+        let controller = SessionController(live: false)
+        if controller.addPage("not an address") { failures.append("text that is no address was taken for a page") }
+        guard let page = PageCopies.address(address), controller.addPage(address) else {
+            return failures + ["the page was not added: \(controller.sourcesMessage ?? "it is not an address")"]
+        }
+        if !controller.readingPages { failures.append("adding the page did not start reading it") }
+        for _ in 0..<80 where controller.readingPages { try? await Task.sleep(nanoseconds: 250_000_000) }
+        try? await Task.sleep(nanoseconds: 800_000_000) // the list is drawn up off the main thread
+        let row = controller.sources.first { $0.place == PageCopies.short(page) }
+        if let row {
+            print("  in the list: \(row.name) · \(row.place) · \(row.detail)\(row.problem.map { " · PROBLEM: \($0)" } ?? "")")
+            if let problem = row.problem { failures.append("the page could not be read: \(problem)") }
+            else if PageCopies.kept(page, root: root) == nil { failures.append("the list shows the page and no copy of it is kept") }
+            else if !row.detail.contains("read") { failures.append("the list does not say when the page was read: \(row.detail)") }
+            controller.removeSource(row)
+            try? await Task.sleep(nanoseconds: 600_000_000)
+            if PageCopies.kept(page, root: root) != nil { failures.append("the page was removed and its copy is still kept") }
+            if controller.sources.contains(where: { $0.place == row.place }) { failures.append("the page was removed and is still in the list") }
+        } else {
+            failures.append("the page is not in the list after it was added")
+        }
+        return failures
+    }
+
+    /// What Stand reads of a page, printed and not kept: the note that adding the page as a
+    /// source would make of it. The page is read where its human reads it, in their own
+    /// browser, unless the run says otherwise (STAND_SCREEN=window: in Stand's own window,
+    /// which gets only what anyone can see).
+    ///
+    ///   Stand --probe page https://wiki.example.com/some/page [--all]
+    static func page(arguments args: [String], root: URL) async throws {
+        guard let i = args.firstIndex(of: "page"), args.indices.contains(i + 1), let address = PageCopies.address(args[i + 1]) else {
+            throw StandError("usage: Stand --probe page <the address of a page> [--all]")
+        }
+        let screen = await MainActor.run { PageScreen(root: root, visible: false, in: PageScreen.Where.told ?? .browser) }
+        defer { screen.closeAndWait() }
+        let program = await MainActor.run { screen.program }
+        let started = Date()
+        switch await screen.read(address) {
+        case .failure(let why):
+            throw StandError("Not read, in \(program): \(why)")
+        case .success(let copy):
+            // The page's headings, as the copy has them: a line of code that begins with a # is not one.
+            var inCode = false
+            let headings = copy.text.split(separator: "\n").filter { line in
+                if line.hasPrefix("```") { inCode.toggle() }
+                return !inCode && line.hasPrefix("#")
+            }
+            print(String(format: "read in %@ in %.1f s: “%@”, %d characters, %d headings", program, Date().timeIntervalSince(started), copy.title, copy.text.count, headings.count))
+            for heading in headings.prefix(args.contains("--all") ? .max : 40) { print("  \(heading)") }
+            print("")
+            print(args.contains("--all") || copy.text.count <= 1500 ? copy.text : String(copy.text.prefix(1500)) + "\n… (--all prints the rest)")
+        }
+    }
+
+    /// The hand and the eye with no voice: puts up each page a talk names, in the order of
+    /// its sections, and says what came up and how long it took. Then goes back to the
+    /// first, as an audience might ask. Pictures of the screen go into a folder.
+    ///
+    ///   Stand --probe screen talks/my-talk.md [--eye picture] [--show] [--out folder]
+    ///
+    /// --eye picture looks by reading a picture of the window, and for each page says what
+    /// the other eye, the page itself, made of it. --show puts the window on the display.
+    static func screen(arguments args: [String], root: URL) async throws {
+        func value(_ flag: String) -> String? { args.firstIndex(of: flag).flatMap { args.indices.contains($0 + 1) ? args[$0 + 1] : nil } }
+        guard let i = args.firstIndex(of: "screen"), args.indices.contains(i + 1), !args[i + 1].hasPrefix("--") else {
+            throw StandError("usage: Stand --probe screen <talk.md> [--eye picture] [--show] [--out folder] [--as-the-panel]")
+        }
+        let talk = args[i + 1]
+        if args.contains("--as-the-panel") {
+            let failures = await screenAsThePanel(talk: talk, root: root)
+            for failure in failures { print("FAIL  \(failure)") }
+            if failures.isEmpty { print("PASS  the panel opens \(PageScreen.Where.told == .browser ? "a window in Chrome" : "the window") for a talk with pages, puts its first page up, and opens none for a talk without") }
+            if !failures.isEmpty { throw StandError("\(failures.count) thing\(failures.count == 1 ? "" : "s") went wrong.") }
+            return
+        }
+        // A talk by its path in the project, or anywhere by a full path.
+        let file = talk.hasPrefix("/") ? URL(fileURLWithPath: talk) : Project.file(talk, root: root)
+        guard let plan = try? String(contentsOf: file, encoding: .utf8) else { throw StandError("Could not read the talk at \(file.path).") }
+        // What can be told without putting anything up: a document or a heading that is not there.
+        let named = Pages.missing(in: plan, sources: NotesSource.all(root: root, settings: BrainSettings.load(root: root)).sources)
+        for problem in named { print("not there: \(problem)") }
+        let sections = TalkPlan.sections(in: plan)
+        let paged = sections.filter { $0.show != nil }
+        guard !paged.isEmpty else { throw StandError("\(talk) names no pages: none of its \(sections.count) sections has a \"Show:\" line.") }
+        let eye = PageScreen.Eye(rawValue: value("--eye") ?? "page") ?? .page
+        let visible = args.contains("--show")
+        // --in-chrome (or STAND_SCREEN=chrome): in a window Stand opens in the person's own Chrome.
+        let place: PageScreen.Where = args.contains("--in-chrome") ? .browser : PageScreen.Where.told ?? .window
+        let screen = await MainActor.run { PageScreen(root: root, visible: visible, eye: eye, in: place) }
+        let out = URL(fileURLWithPath: value("--out") ?? NSTemporaryDirectory() + "stand-screen", isDirectory: true)
+        try FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
+        let shownIn = await MainActor.run { screen.toShare }
+        print("\(talk): \(sections.count) sections, \(paged.count) with a page, shown in \(shownIn). Looking by \(eye == .page || place == .browser ? "asking the page" : "reading a picture of the window").")
+        var failed = 0
+        var slowest = 0.0
+        func show(_ section: TalkPlan.Section, _ label: String) async {
+            guard let page = section.show else { return }
+            let look = await screen.show(page)
+            slowest = max(slowest, look.seconds)
+            if !look.shown { failed += 1 }
+            let name = String(format: "%@-section-%@.png", label, section.number)
+            if let picture = look.picture { try? picture.write(to: out.appendingPathComponent(name)) }
+            print(String(format: "  %@ %@. %@  %@  %.2f s%@", look.shown ? "ok  " : "FAIL", section.number, page.words,
+                         look.shown ? "came up as \"\(look.showing)\"" : (look.problem ?? "") + (look.showing.isEmpty ? "" : " The screen shows \"\(look.showing)\"."),
+                         look.seconds, look.picture == nil ? ", no picture" : ""))
+        }
+        for (index, section) in paged.enumerated() {
+            await show(section, String(format: "%02d", index + 1))
+            // Then down the page, point by point, as the voice would take it.
+            let points = section.points.split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }.filter { $0.hasPrefix("-") }
+                .map { String($0.dropFirst()).trimmingCharacters(in: .whitespaces) }
+            // Not in the opening, which the talk gives with its page where it was put (`beginFollowing`).
+            let stops = points.count > 1 && section.number != sections.first?.number ? await screen.follow(points) : 0
+            guard stops > 0 else { continue }
+            print("       \(stops) of its \(points.count) points have a place of their own further down the page:")
+            if args.contains("--places") {
+                let places = await screen.places()
+                for point in points.indices {
+                    print("         point \(point + 1): \(String(points[point].prefix(60)))…  ->  \(places[point].map { "\"\($0.prefix(70))\"" } ?? "(no place of its own)")")
+                }
+            }
+            for point in points.indices {
+                guard let look = await screen.bring(point: point) else { continue }
+                slowest = max(slowest, look.seconds)
+                if !look.shown { failed += 1 }
+                if let picture = look.picture { try? picture.write(to: out.appendingPathComponent(String(format: "%02d-section-%@-point-%d.png", index + 1, section.number, point + 1))) }
+                print(String(format: "       %@ point %d: moved down to \"%@\"  %.2f s", look.shown ? "ok  " : "FAIL", point + 1, look.shown ? look.showing : (look.problem ?? ""), look.seconds))
+            }
+            // And as someone might ask: down (from the end, which cannot be done), up, back to the top, and to the top again.
+            for direction in [ScreenScroll.down, .up, .top, .top] {
+                let look = await screen.scroll(direction)
+                print(String(format: "       asked to scroll %@: %@  %.2f s", direction.rawValue, look.shown ? "now at \"\(look.showing)\"" : (look.problem ?? "did not move"), look.seconds))
+            }
+        }
+        // And back, as when someone asks to see an earlier page again.
+        if paged.count > 1, let first = paged.first {
+            print("back to the first:")
+            await show(first, String(format: "%02d", paged.count + 1))
+        }
+        print(String(format: "%d of %d came up; the slowest took %.2f s. Pictures: %@", paged.count + (paged.count > 1 ? 1 : 0) - failed, paged.count + (paged.count > 1 ? 1 : 0), slowest, out.path))
+        await MainActor.run { screen.close() }
+        if failed > 0 { throw StandError("\(failed) page\(failed == 1 ? "" : "s") did not come up.") }
+    }
+
     static func voice(arguments args: [String], root: URL) async throws {
         func value(_ flag: String) -> String? { args.firstIndex(of: flag).flatMap { args.indices.contains($0 + 1) ? args[$0 + 1] : nil } }
         let known = Voices.all(root: root)
@@ -365,13 +575,13 @@ extension Probe {
                      total.turns > 0 ? total.dollars / Double(total.turns) * 100 : 0))
     }
 
-    /// Plays a recording of a room through the speech marker, with no session and no
-    /// sound, and prints the utterances it would have handed to the voice service. Given
-    /// a run folder it reads that run's room.wav, and takes from its events when Stand's
-    /// own voice was coming out of the speakers. `chunkSeconds` is the size the sound is
-    /// fed in: 0.02 as the scripted audience delivers it, 0.1 as a real microphone does.
-    /// The two should mark the same utterances.
-    static func marker(path: String, chunkSeconds: Double, cutsInAfter: Double = 0) throws {
+    /// A recording of a room: a kept run's room.wav, or any 16 kHz WAV file. Given a run
+    /// folder, also when Stand's own voice was coming out of the speakers, from the run's
+    /// events, and how far the recording's clock is behind the session's (the recording
+    /// starts when the session first heard the room). With `speechReady`, Stand's voice
+    /// is taken to have gone on for as long as it had speech ready, which the cut-off
+    /// note says: for trying a rule that lets sounds pass on a run that was stopped by them.
+    static func recordedRoom(path: String, speechReady: Bool) throws -> (url: URL, rate: Double, pcm: Data, audible: [(from: Double, to: Double)], offset: Double) {
         var url = URL(fileURLWithPath: path)
         var audible = [(from: Double, to: Double)]()
         var isFolder: ObjCBool = false
@@ -384,10 +594,7 @@ extension Probe {
             for event in events {
                 let t = (event["t"] as? Double ?? 0) / 1000
                 if event["type"] as? String == "stand_start" { start = t }
-                // Trying the rule that lets short sounds pass: in the run itself Stand was
-                // stopped at once, so its voice is taken to have gone on for as long as it
-                // had speech ready, which the cut-off note says.
-                if cutsInAfter > 0, event["type"] as? String == "cut_off_note", let detail = event["detail"] as? String {
+                if speechReady, event["type"] as? String == "cut_off_note", let detail = event["detail"] as? String {
                     unheard = Double(detail.prefix { $0.isNumber || $0 == "." }) ?? 0
                 }
                 if event["type"] as? String == "stand_stop", let from = start {
@@ -403,8 +610,19 @@ extension Probe {
         let wav = try PCM.readWav(url)
         guard wav.rate == GeminiLive.microphoneRate else { throw StandError("\(url.lastPathComponent) is at \(Int(wav.rate)) Hz; the room is recorded at 16000.") }
         let seconds = PCM.seconds(wav.pcm, rate: wav.rate)
-        // The recording starts when the session first heard the room, a moment after the session's own clock.
-        let offset = max(0, (length ?? seconds) - seconds)
+        return (url, wav.rate, wav.pcm, audible, max(0, (length ?? seconds) - seconds))
+    }
+
+    /// Plays a recording of a room through the speech marker, with no session and no
+    /// sound, and prints the utterances it would have handed to the voice service. Given
+    /// a run folder it reads that run's room.wav, and takes from its events when Stand's
+    /// own voice was coming out of the speakers. `chunkSeconds` is the size the sound is
+    /// fed in: 0.02 as the scripted audience delivers it, 0.1 as a real microphone does.
+    /// The two should mark the same utterances.
+    static func marker(path: String, chunkSeconds: Double, cutsInAfter: Double = 0) throws {
+        let room = try recordedRoom(path: path, speechReady: cutsInAfter > 0)
+        let url = room.url, wav = (rate: room.rate, pcm: room.pcm), audible = room.audible, offset = room.offset
+        let seconds = PCM.seconds(wav.pcm, rate: wav.rate)
         var marker = SpeechMarker()
         marker.cutsInAfter = cutsInAfter
         var passed = [(from: Double, to: Double, loud: Double)]()
@@ -423,9 +641,9 @@ extension Probe {
                     utterances.append((at, nil, PCM.seconds(leadIn, rate: wav.rate), audible.contains { $0.from <= at && at <= $0.to + 0.2 }))
                 case .stopped(let at):
                     if !utterances.isEmpty { utterances[utterances.count - 1].to = at }
-                case .passedOver(let from, let to, let loud):
+                case .passedOver(_, let from, let to, let loud):
                     passed.append((from, to, loud))
-                case .loud, .sound:
+                case .loud, .sound, .weighed:
                     break
                 }
             }
@@ -455,6 +673,34 @@ extension Probe {
             try BrainSettings.add(source: source, root: root)
             print("added: \(source.sorted { $0.key < $1.key }.map { "\($0.key) \($0.value)" }.joined(separator: ", "))")
         }
+        // --as-the-panel-adds <address>: the panel's own way of adding a page, with nobody at
+        // it: the controller the panel uses is given the address, reads the page, lists it,
+        // and takes it away again. Prints PASS or what went wrong.
+        if let i = args.firstIndex(of: "--as-the-panel-adds"), args.indices.contains(i + 1) {
+            let failures = await pageAsThePanel(address: args[i + 1], root: root)
+            for failure in failures { print("FAIL  \(failure)") }
+            if failures.isEmpty { print("PASS  the panel adds a page, reads it, says when it was read, and takes its copy away with it") }
+            else { throw StandError("\(failures.count) thing\(failures.count == 1 ? "" : "s") went wrong.") }
+            return
+        }
+        // --add-page <address>: a page from the browser, read there and kept as a note.
+        // --read-pages: every such page read again. Either opens a window in the browser.
+        var added: String?
+        if let i = args.firstIndex(of: "--add-page"), args.indices.contains(i + 1) {
+            let source = try PageCopies.source(from: args[i + 1])
+            try BrainSettings.add(source: source, root: root)
+            added = source["page"]
+            print("added: page \(added ?? "")")
+        }
+        if added != nil || args.contains("--read-pages") {
+            let all = NotesSource.all(root: root, settings: BrainSettings.load(root: root)).sources
+            let wanted = args.contains("--read-pages") ? all : all.filter { $0.page?.absoluteString == added }
+            let started = Date()
+            let problems = await PageReading.read(wanted, root: root)
+            let pages = wanted.compactMap(\.page)
+            print(String(format: "pages read through the browser in %.1f s: %d of %d", Date().timeIntervalSince(started), pages.count - problems.count, pages.count))
+            for (address, why) in problems { print("  FAIL \(address.absoluteString): \(why)") }
+        }
         if let i = args.firstIndex(of: "--remove"), args.indices.contains(i + 1), let number = Int(args[i + 1]) {
             try BrainSettings.removeSource(at: number - 1, root: root)
             print("removed source \(number)")
@@ -477,7 +723,9 @@ extension Probe {
                      notes.summary, notes.totalCharacters, notes.isEmpty ? "nothing to look up" : !notes.hasDocuments ? "searched in place" : notes.fits(within: settings.docsStuffLimitChars) ? "sent whole with each question" : "too many to send whole: read through tools"))
         for (source, count) in zip(library.sources, notes.counts) {
             let number = source.index.map { "\($0 + 1). " } ?? "   "
-            print("  \(number)\(count.name): \(count.files) note(s), \(count.characters) characters\(count.others > 0 ? ", and \(count.others) other file(s) the brain can search" : ""), from \(source.repo == nil ? source.folder.path : source.place)")
+            let from = source.page.map { page in "the page \(page.absoluteString), " + (PageCopies.kept(page, root: root).map { "“\($0.title)”, read \(LinkedRepos.ago($0.readAt, now: Date()))" } ?? "not read yet") }
+                ?? (source.repo == nil ? source.folder.path : source.place)
+            print("  \(number)\(count.name): \(count.files) note(s), \(count.characters) characters\(count.others > 0 ? ", and \(count.others) other file(s) the brain can search" : ""), from \(from)")
         }
         for line in notes.leftOut { print("  left out: \(line)") }
         if CommandLine.arguments.contains("--list") {
@@ -667,6 +915,7 @@ final class ProbeSession {
             stamp("Stand signalled that the floor is open")
         case .keptQuiet: break // the probes pass no notes
         case .askHuman: break // and offer no human to ask
+        case .showPage, .scrollPage: break // and have no screen
         case .lookUp(let id, _):
             live.respond(lookUp: id, answer: "NOT FOUND. The probe has no brain.")
         case .reconnected(let why):

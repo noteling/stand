@@ -16,6 +16,10 @@ public enum Preparation {
         public let title: String
         public let text: String
         public let seconds: Double
+        /// How many of its sections name a page to show, and which of those pages cannot be
+        /// shown, each in a sentence: a document or a heading that is not there.
+        public let pages: Int
+        public let pagesNotFound: [String]
         /// The sections of the talk, and how long it says they take in all.
         public var sections: Int { text.split(separator: "\n").filter { $0.hasPrefix("## ") && $0.dropFirst(3).first?.isNumber == true }.count }
     }
@@ -55,7 +59,9 @@ public enum Preparation {
         }
         let title = String(text.split(separator: "\n").first ?? "").replacingOccurrences(of: "# Talk:", with: "").trimmingCharacters(in: .whitespaces)
         let path = try save(text, title: title, root: root)
-        return Talk(path: path, title: title, text: text, seconds: Date().timeIntervalSince(started))
+        return Talk(path: path, title: title, text: text, seconds: Date().timeIntervalSince(started),
+                    pages: TalkPlan.sections(in: text).filter { $0.show != nil }.count,
+                    pagesNotFound: Pages.missing(in: text, sources: library.sources))
     }
 
     /// The plan in what the brain replied: from the "# Talk:" line on, without anything it put around it.
@@ -103,6 +109,29 @@ public enum TalkPlan {
         public let time: String?
         /// The points under the heading, as the plan has them.
         public let points: String
+        /// The page this section is given with, when the plan names one ("Show: …").
+        public let show: Page?
+
+        /// For each point of the section, whether it can be found in `said`: half of the
+        /// point's longer words. A point of fewer than four such words is never found:
+        /// it says what to do ("Invite questions"), not what to say.
+        public func pointsMade(in said: String) -> [Bool] {
+            func words(_ text: String) -> Set<String> {
+                // Longer words only, without their endings and cut to five letters, so that
+                // "joins" and "join", "speaking" and "speaks", "changes" and "changing" are one.
+                Set(text.lowercased().split(whereSeparator: { !$0.isLetter }).filter { $0.count >= 4 }.map { word -> String in
+                    var word = Substring(word)
+                    if word.count > 6, word.hasSuffix("ing") { word = word.dropLast(3) } else if word.count > 5, word.hasSuffix("ed") { word = word.dropLast(2) }
+                    else if word.count > 4, word.hasSuffix("s") { word = word.dropLast(1) }
+                    return String(word.prefix(5))
+                })
+            }
+            let heard = words(said)
+            return points.split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }.filter { $0.hasPrefix("-") }.map { point in
+                let wanted = words(point)
+                return wanted.count >= 4 && Double(wanted.intersection(heard).count) >= Double(wanted.count) * 0.5
+            }
+        }
     }
 
     /// The numbered sections, in order. A part with a heading that is not numbered, such
@@ -119,8 +148,10 @@ public enum TalkPlan {
                 time = String(title[title.index(after: bracket)...].dropLast())
                 title = title[..<bracket].trimmingCharacters(in: .whitespaces)
             }
-            let points = section.lines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
-            if !points.isEmpty { found.append(Section(number: section.number, title: title, time: time, points: points)) }
+            // The page to show is the screen's business, not something for Stand to say.
+            let show = section.lines.lazy.compactMap { Page(line: $0) }.first
+            let points = section.lines.filter { Page(line: $0) == nil }.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+            if !points.isEmpty { found.append(Section(number: section.number, title: title, time: time, points: points, show: show)) }
         }
         for line in plan.split(separator: "\n", omittingEmptySubsequences: false) {
             guard line.hasPrefix("#") else {

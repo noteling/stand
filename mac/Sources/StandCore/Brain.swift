@@ -40,6 +40,10 @@ public struct BrainSettings {
     /// and what it writes is what Stand will say in front of people.
     public var prepareModel = "claude-opus-5-5"
     public var prepareEffort = "high"
+    /// The model that keeps watch over a talk (`Watch`). It is asked every few seconds and
+    /// answers in one line, so it has to be quick. Empty means the same model as `model`.
+    /// STAND_WATCH_MODEL names another for one run.
+    public var watchModel = ""
     /// A gateway that speaks the Messages API. Empty means api.anthropic.com. "/v1/messages" is added to it.
     public var apiBaseURL = ""
     /// Extra headers for the gateway. A value written $NAME is the setting of that name, from the environment or .env.
@@ -98,6 +102,7 @@ public struct BrainSettings {
             settings.effort = text("effort") ?? settings.effort
             settings.prepareModel = text("prepareModel") ?? settings.prepareModel
             settings.prepareEffort = text("prepareEffort") ?? settings.prepareEffort
+            settings.watchModel = text("watchModel") ?? settings.watchModel
             settings.apiBaseURL = text("apiBaseURL") ?? ""
             settings.apiHeaders = json["apiHeaders"] as? [String: String] ?? [:]
             settings.claudePath = text("claudePath") ?? ""
@@ -151,7 +156,7 @@ public struct BrainSettings {
         try edit(root: root) { sources in sources.append(source) }
     }
 
-    /// Takes the source at `index` out of the settings file. A repository's copy goes with it.
+    /// Takes the source at `index` out of the settings file. A repository's copy goes with it, and a page's.
     public static func removeSource(at index: Int, root: URL) throws {
         let before = NotesSource.all(root: root, settings: load(root: root)).sources.first { $0.index == index }
         try edit(root: root) { sources in
@@ -162,6 +167,8 @@ public struct BrainSettings {
             try? FileManager.default.removeItem(at: folder.appendingPathComponent(link.slug))
             try? FileManager.default.removeItem(at: folder.appendingPathComponent("\(link.slug).json"))
         }
+        // A page's copy goes with it too: what was read from someone's browser is not kept once they take the page away.
+        if let page = before?.page { try? FileManager.default.removeItem(at: PageCopies.folder(for: page, root: root)) }
     }
 
     private static func edit(root: URL, _ change: (inout [[String: Any]]) -> Void) throws {
@@ -238,6 +245,28 @@ public enum BrainFactory {
         let instructions = try talk.map { try Project.read("prompts/brain-prompter-talk.md", root: root).replacingOccurrences(of: "{talk}", with: try Project.read($0, root: root)) }
             ?? Project.read("prompts/brain-prompter.md", root: root)
         return ClaudeCodeBrain(settings: settings, executable: executable, library: library, instructions: instructions, root: root)
+    }
+
+    /// The brain that keeps watch over a talk (`Watch`): a process of its own, with the
+    /// plan of the talk and nothing else. No notes, no folders, no web, so that what it is
+    /// sent each time is small and its one line comes back fast. Nil when the brain is not
+    /// the Claude Code CLI.
+    public static func makeWatch(root: URL, talk: String) throws -> Brain? {
+        var settings = BrainSettings.load(root: root)
+        guard mode(root: root) == "claudeCode", let executable = ClaudeCodeBrain.executable(path: settings.claudePath) else { return nil }
+        settings.web = false
+        settings.mcpConfig = ""
+        settings.claudeCodeSetup = false
+        settings.ask = "always"
+        settings.sources = []
+        if let model = ProcessInfo.processInfo.environment["STAND_WATCH_MODEL"], !model.isEmpty {
+            settings.model = model
+        } else if !settings.watchModel.isEmpty {
+            settings.model = settings.watchModel
+        }
+        let instructions = try Project.read("prompts/brain-watch.md", root: root).replacingOccurrences(of: "{talk}", with: try Project.read(talk, root: root))
+        return ClaudeCodeBrain(settings: settings, executable: executable, library: NotesLibrary(sources: []), instructions: instructions, root: root,
+                               limit: 20, bare: true)
     }
 
     /// A third brain, for before the meeting: it reads the notes and the code and writes

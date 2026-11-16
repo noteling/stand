@@ -1,0 +1,33 @@
+{
+  "description": "The talk with pages, steered in words. Someone asks to go back a page, and when Stand has shown it says thanks and tells it to go on, as a person does. Stand understands that and the stage manager, which understands no words, does not: the first time a person tried this, Stand gave a whole section under the page they had asked for. What to read in the report: after \"you can continue\", how soon the talk's own page was back, and whether Stand was speaking about it under the other page meanwhile (the table \"The watch, and the hand that follows the mouth\"). Run it with --screen, and with --no-watch and STAND_HAND_FOLLOWS=off to see the fault. Lines are timed by how long Stand has spoken.",
+  "during": [
+    {
+      "label": "asks for the page before",
+      "kind": "question",
+      "afterSpeechSeconds": 55,
+      "voice": "Daniel",
+      "say": "Sorry, can you go back to the previous page for a second?"
+    },
+    {
+      "label": "says to go on",
+      "afterQuietSeconds": 2,
+      "voice": "Daniel",
+      "say": "Okay, thank you. You can continue."
+    }
+  ],
+  "after": [
+    {
+      "label": "closing question",
+      "voice": "Samantha",
+      "say": "And what does an hour of it cost, roughly?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "Thanks, that's all the questions we have."
+  },
+  "talkIsAtLeastSpeechSeconds": 60,
+  "talkEndsAfterQuietSeconds": 14,
+  "maxMinutes": 8
+}

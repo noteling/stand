@@ -1,0 +1,110 @@
+{
+  "description": "The ear's test: short sounds made while Stand is speaking, some of them someone calling for it and some not. Until 2026-11-15 none of them stopped Stand, because a sound had to be loud for 0.6 seconds to count as someone speaking: a person said \"excuse me\" and \"hello\" five times before a whole sentence got through. A line here says what should become of it: \"stops\" for a call (a person's own \"hello\" and \"excuse me\" from that day, and \"wait\" in one of the Mac's voices), \"passes\" for everything else (\"yeah\", \"right\", a real laugh, and \"you go ahead\" said to someone else). The last line is a whole sentence, which stops Stand the ordinary way. After each call someone says what they wanted, as a person does once they have the speaker's attention. What to read in the report: the last column of \"What the audience did\", and the table \"The ear\". Run it several times, and with --no-ear to see the fault: every short line passes. It needs the recordings runs/2026-11-13T16-20-06-gemini-app and runs/2026-11-15T18-43-13-gemini-app, which are never published, so it runs only on the Mac that has them. Lines are timed by how long Stand has spoken. A line that happens to land as a section ends is not the ear's case: Stand has stopped by itself and hears the word as it would in any silence.",
+  "during": [
+    {
+      "label": "agrees (\"yeah\")",
+      "kind": "noise",
+      "expect": "passes",
+      "afterSpeechSeconds": 8,
+      "voice": "Samantha",
+      "say": "Yeah."
+    },
+    {
+      "label": "calls for it (a person's own \"hello\")",
+      "kind": "question",
+      "expect": "stops",
+      "afterSpeechSeconds": 16,
+      "say": "(hello?)",
+      "clip": "runs/2026-11-15T18-43-13-gemini-app/room.wav",
+      "clipFrom": 62.64,
+      "clipTo": 63.43
+    },
+    {
+      "label": "says what they wanted",
+      "afterQuietSeconds": 0.8,
+      "voice": "Daniel",
+      "say": "Sorry, what is your name again?"
+    },
+    {
+      "label": "follows along (\"right\")",
+      "kind": "noise",
+      "expect": "passes",
+      "afterSpeechSeconds": 32,
+      "voice": "Daniel",
+      "say": "Right."
+    },
+    {
+      "label": "a short laugh",
+      "kind": "noise",
+      "expect": "passes",
+      "afterSpeechSeconds": 42,
+      "say": "(a laugh of two seconds, not loud)",
+      "clip": "runs/2026-11-13T16-20-06-gemini-app/room.wav",
+      "clipFrom": 30.8,
+      "clipTo": 32.31
+    },
+    {
+      "label": "calls for it (\"wait\")",
+      "kind": "question",
+      "expect": "stops",
+      "afterSpeechSeconds": 52,
+      "voice": "Samantha",
+      "say": "Wait."
+    },
+    {
+      "label": "says what they wanted",
+      "afterQuietSeconds": 0.8,
+      "voice": "Samantha",
+      "say": "Could you say that last part once more?"
+    },
+    {
+      "label": "says \"you go ahead\" to someone else",
+      "kind": "noise",
+      "expect": "passes",
+      "afterSpeechSeconds": 68,
+      "say": "(you go ahead, to the other person in the room)",
+      "clip": "runs/2026-11-13T16-20-06-gemini-app/room.wav",
+      "clipFrom": 34.46,
+      "clipTo": 36.19
+    },
+    {
+      "label": "calls for it (a person's own \"excuse me\")",
+      "kind": "question",
+      "expect": "stops",
+      "afterSpeechSeconds": 84,
+      "say": "(excuse me?)",
+      "clip": "runs/2026-11-15T18-43-13-gemini-app/room.wav",
+      "clipFrom": 60.98,
+      "clipTo": 61.85
+    },
+    {
+      "label": "says what they wanted",
+      "afterQuietSeconds": 0.8,
+      "voice": "Daniel",
+      "say": "How much does an hour of it cost?"
+    },
+    {
+      "label": "asks in a whole sentence",
+      "kind": "question",
+      "expect": "stops",
+      "afterSpeechSeconds": 98,
+      "voice": "Samantha",
+      "say": "Sorry, one more thing. Can it join a call by itself?"
+    }
+  ],
+  "after": [
+    {
+      "label": "closing question",
+      "voice": "Daniel",
+      "say": "Thanks. And who made you?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "Thanks, that's all the questions we have."
+  },
+  "talkIsAtLeastSpeechSeconds": 50,
+  "talkEndsAfterQuietSeconds": 16,
+  "maxMinutes": 12
+}

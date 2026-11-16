@@ -48,7 +48,26 @@ final class SessionController: ObservableObject {
     @Published var lastRunSummary: String?
     @Published var talks = [String]()
     /// The talk Stand will give, as a path. Empty when it gives none and joins the discussion.
-    @Published var talk = "talks/introducing-stand.md" { didSet { if talk != oldValue, isLive { UserDefaults.standard.set(talk, forKey: "StandTalk") } } }
+    @Published var talk = "talks/introducing-stand.md" {
+        didSet {
+            guard talk != oldValue else { return }
+            if isLive { UserDefaults.standard.set(talk, forKey: "StandTalk") }
+            checkTalkForPages()
+        }
+    }
+    /// The chosen talk names pages for its sections, so it is given with a window of pages to share in the call.
+    @Published var talkShowsPages = false
+    /// Where those pages are put up: in a window of Stand's own, or in one Stand opens in its
+    /// human's own Chrome. The choice is kept on this Mac.
+    @Published var pagesInChrome = false {
+        didSet {
+            guard pagesInChrome != oldValue else { return }
+            if isLive { UserDefaults.standard.set(pagesInChrome ? "chrome" : "window", forKey: "StandPagesIn") }
+        }
+    }
+    /// The pages the chosen talk names that are not there, each in a sentence: a document that
+    /// is not in the folders Stand was given, or a heading its document does not have.
+    @Published var talkPagesMissing = [String]()
     var attending: Bool { talk.isEmpty }
     /// The voices Stand can speak with, and the one chosen, by name. The choice is kept on this Mac.
     @Published var voices = [Voice]()
@@ -71,6 +90,10 @@ final class SessionController: ObservableObject {
     @Published var sources = [SourceRow]()
     @Published var showingSources = false
     @Published var checkingSources = false
+    /// While the pages among the sources are being read through the browser.
+    @Published var readingPages = false
+    /// Why a page among the sources could not be read, by its address, since it was last tried.
+    private var pageProblems = [String: String]()
     @Published var sourcesMessage: String?
     /// While the brain is writing a talk for the meeting described in the brief: what it is doing just now.
     @Published var preparing: String?
@@ -102,6 +125,13 @@ final class SessionController: ObservableObject {
 
     private var session: StandSession?
     private var audio: AudioIO?
+    /// The window a talk's pages are shown in, when the talk names any. Its human shares it in the call.
+    private var pageScreen: PageScreen?
+    private var screenIsFor: String? // the project folder the open window reads its pages from
+    /// What last came of asking the screen for a page, for the panel.
+    @Published var screenSays: String?
+    /// What the brain's watch last changed about the talk: it waits, it goes on, it moved.
+    @Published var watchSays: String?
     /// The samples already fetched, so that hearing a voice a second time costs nothing; the
     /// ones on their way; and what plays them.
     private var samples = [String: Data]()
@@ -149,6 +179,10 @@ final class SessionController: ObservableObject {
         // What was chosen last time, a talk or none, is chosen again.
         if live, let last = UserDefaults.standard.string(forKey: "StandTalk"), last.isEmpty || talks.contains(last) { talk = last }
         if !talk.isEmpty, !talks.contains(talk) { talk = talks.first ?? "" }
+        // Where pages go up: what this run was told (STAND_SCREEN), or what was chosen last time.
+        if let told = PageScreen.Where.told { pagesInChrome = told == .browser }
+        else if live { pagesInChrome = UserDefaults.standard.string(forKey: "StandPagesIn") == "chrome" }
+        checkTalkForPages()
         voices = Voices.all(root: root)
         if live, let last = UserDefaults.standard.string(forKey: "StandVoice"), voices.contains(where: { $0.name == last }) { voice = last }
         brief = Project.brief(root: root)
@@ -207,6 +241,12 @@ final class SessionController: ObservableObject {
                 settings.voice = voice
                 settings.echoSettle = 1.0 // the echo canceller leaks Stand's first second
                 let session = StandSession(root: root, label: "app", settings: settings)
+                // A talk that names pages for its sections is given with them up in a window,
+                // Stand's own or one in Chrome, which its human shares in the call. Stand moves it.
+                if let screen = openScreen(root: root) {
+                    session.screen = screen
+                    screenSays = "Share \(screen.toShare) in the call. Stand changes its pages."
+                }
                 let audio = AudioIO()
                 session.onSpeech = { [weak audio] pcm in audio?.play(pcm) }
                 session.onFlush = { [weak audio] in audio?.flush() }
@@ -241,6 +281,53 @@ final class SessionController: ObservableObject {
                 phase = .idle
             }
         }
+    }
+
+    /// The window the chosen talk's pages are shown in, put in front for its human to share.
+    /// Nil when the talk names no pages. A window left from the talk before is closed.
+    func openScreen(root: URL) -> PageScreen? {
+        checkTalkForPages()
+        guard talkShowsPages else {
+            pageScreen?.close()
+            pageScreen = nil
+            return nil
+        }
+        // The window that is already open is used again: its human may be sharing it.
+        let place: PageScreen.Where = pagesInChrome ? .browser : .window
+        if let open = pageScreen, screenIsFor == root.path, open.place == place {
+            open.bringToFront()
+            return open
+        }
+        pageScreen?.close()
+        let screen = PageScreen(root: root, visible: true, in: place)
+        screen.bringToFront()
+        pageScreen = screen
+        screenIsFor = root.path
+        return screen
+    }
+
+    /// Before the meeting: opens the window with the talk's first page in it, so that its
+    /// human can put it where they want it and share it in the call before Stand says a word.
+    func showScreenNow() {
+        guard phase == .idle, let root = try? Project.root(), let screen = openScreen(root: root),
+              let plan = try? String(contentsOf: Project.file(talk, root: root), encoding: .utf8),
+              let first = TalkPlan.sections(in: plan).compactMap(\.show).first else { return }
+        Task {
+            let look = await screen.show(first)
+            if !look.shown { message = "The talk's first page did not come up: \(look.problem ?? "it is not known why.")" }
+        }
+    }
+
+    private func checkTalkForPages() {
+        guard !talk.isEmpty, let root = try? Project.root(),
+              let plan = try? String(contentsOf: Project.file(talk, root: root), encoding: .utf8) else {
+            talkShowsPages = false
+            talkPagesMissing = []
+            return
+        }
+        talkShowsPages = TalkPlan.sections(in: plan).contains { $0.show != nil }
+        // A page that will not come up is better heard of now than in the meeting.
+        talkPagesMissing = talkShowsPages ? Pages.missing(in: plan, sources: NotesSource.all(root: root, settings: BrainSettings.load(root: root)).sources) : []
     }
 
     func stop() {
@@ -421,7 +508,7 @@ final class SessionController: ObservableObject {
                     self.preparing = nil
                     self.talks = Project.talks(root: root)
                     self.talk = talk.path
-                    self.preparedLine = "Its brain wrote “\(talk.title)”: \(talk.sections) sections, in \(Int(talk.seconds / 60) + 1) min. Read it before the meeting."
+                    self.preparedLine = "Its brain wrote “\(talk.title)”: \(talk.sections) sections\(talk.pages > 0 ? ", \(talk.pages) with a page to show" : ""), in \(Int(talk.seconds / 60) + 1) min. Read it before the meeting."
                 }
             } catch {
                 await MainActor.run { [weak self] in
@@ -490,6 +577,11 @@ final class SessionController: ObservableObject {
                 } else if let sha = status.sha {
                     detail += ", at \(sha.prefix(7)), checked \(Self.ago(status.checkedAt))"
                 }
+            } else if let page = source.page {
+                // A page from the browser: what is kept of it, and since when.
+                let kept = root.flatMap { PageCopies.kept(page, root: $0) }
+                detail = kept.map { "“\($0.title)”, read \(Self.ago($0.readAt))" } ?? (readingPages ? "being read…" : "not read yet")
+                problem = pageProblems[page.absoluteString]
             } else if source.repo == nil, !FileManager.default.fileExists(atPath: source.folder.path) {
                 problem = "This folder is not there."
             }
@@ -548,6 +640,52 @@ final class SessionController: ObservableObject {
         }
     }
 
+    /// Adds a page from the browser, by its address, and reads it there. Returns false, with
+    /// the reason shown, when the text is not the address of a page.
+    @discardableResult
+    func addPage(_ text: String) -> Bool {
+        guard let root else { return false }
+        do {
+            let source = try PageCopies.source(from: text)
+            try BrainSettings.add(source: source, root: root)
+            // Read now, whatever is kept of it from before: its human has just asked for it.
+            readPages(only: source["page"])
+            return true
+        } catch {
+            sourcesMessage = "\(error)"
+            return false
+        }
+    }
+
+    /// Reads the pages among the sources through the browser and keeps what they say. It
+    /// opens a window there, so it happens when its human asks and never by itself.
+    func readPages(only address: String? = nil) {
+        guard let root, !readingPages else { return }
+        let pages = NotesSource.all(root: root, settings: BrainSettings.load(root: root)).sources.filter { source in
+            guard let page = source.page else { return false }
+            return address == nil || page.absoluteString == address
+        }
+        guard !pages.isEmpty else {
+            refreshSources(check: false)
+            return
+        }
+        readingPages = true
+        for page in pages.compactMap(\.page) { pageProblems[page.absoluteString] = nil }
+        refreshSources(check: false)
+        Task {
+            let problems = await PageReading.read(pages, root: root)
+            for (address, why) in problems { pageProblems[address.absoluteString] = why }
+            readingPages = false
+            refreshSources(check: false)
+        }
+    }
+
+    /// The panel's "Check now": the linked repositories are checked, and the pages read again.
+    func checkSources() {
+        refreshSources(check: true)
+        readPages()
+    }
+
     func removeSource(_ row: SourceRow) {
         guard let root, let index = row.index else { return }
         do {
@@ -596,6 +734,14 @@ final class SessionController: ObservableObject {
             if let answer { passed.append(answer) }
         case .told(let text):
             passed.append(text)
+        case .screen(let shown, let what):
+            // How long it took and how it was looked at belong in the run's record, not in front of its human.
+            let plain = what.replacingOccurrences(of: #", [0-9.]+ s, seen by [a-z ]+$"#, with: "", options: .regularExpression)
+            screenSays = plain.hasPrefix("for section") ? (shown ? "On the screen " : "The screen did not change ") + plain : "The page " + plain
+        case .watched(let what):
+            watchSays = what
+        case .earHeard:
+            break // Stand stops and answers: that is what there is to see
         case .error(let text):
             message = text
         case .closed(let reason, let folder):
@@ -620,6 +766,9 @@ final class SessionController: ObservableObject {
             reply = ""
             sheet = nil
             cue = nil
+            screenSays = nil
+            watchSays = nil
+            // The window with the talk's pages stays up: its human may still be sharing it, and closes it.
             phase = .idle
         }
     }

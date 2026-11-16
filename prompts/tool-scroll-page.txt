@@ -1,0 +1,1 @@
+Moves the page on the screen. Call it when someone asks you to scroll: "can you scroll down a bit", "go up a little", "back to the top". Give the way they want: down or up, which each move most of a screenful, or top, which goes back to where this part of the page begins. A moment later you are told what is now at the top of what the audience sees, or that the page did not move.

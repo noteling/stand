@@ -1,0 +1,27 @@
+{
+  "description": "A scripted audience for any talk that shows pages, to watch one of your own: someone asks to go back a page in the middle of it, and for the first page again at the end. Run it with --talk and --screen, or with --show-screen --hear to watch and listen. Lines are timed by how long Stand has spoken.",
+  "during": [
+    {
+      "label": "asks for the page before",
+      "kind": "question",
+      "afterSpeechSeconds": 70,
+      "voice": "Daniel",
+      "say": "Sorry, can you go back to the previous page for a second?"
+    }
+  ],
+  "after": [
+    {
+      "label": "asks for the first page",
+      "voice": "Samantha",
+      "say": "Could you put the very first page back up?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "Thanks, that's all the questions we have."
+  },
+  "talkIsAtLeastSpeechSeconds": 90,
+  "talkEndsAfterQuietSeconds": 14,
+  "maxMinutes": 15
+}

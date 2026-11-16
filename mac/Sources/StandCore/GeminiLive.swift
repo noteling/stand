@@ -21,6 +21,12 @@ public enum LiveEvent {
     /// Stand has a question for its human. Acknowledge with `GeminiLive.respond(askHuman:)`;
     /// the answer itself goes to Stand later, as a note does.
     case askHuman(id: String, question: String)
+    /// Someone asked to see a page, and Stand asks for the page of that section of the
+    /// talk to be put on the screen. Answer with `GeminiLive.respond(showPage:)`.
+    case showPage(id: String, section: String)
+    /// Someone asked for the page to be scrolled, and Stand asks for it: "down" or "up".
+    /// Answer with `GeminiLive.respond(scrollPage:)`.
+    case scrollPage(id: String, direction: String)
     /// The connection was replaced by a new one that carries the same conversation.
     case reconnected(String)
     /// What the service says it counted: tokens it was given (text and audio), tokens it
@@ -41,6 +47,8 @@ public final class GeminiLive {
     static let lookUpTool = "look_it_up"
     static let quietTool = "nothing_to_say"
     static let askHumanTool = "ask_my_human"
+    static let showPageTool = "show_page"
+    static let scrollPageTool = "scroll_page"
 
     private let urlSession = URLSession(configuration: .default)
     private let onEvent: (LiveEvent) -> Void
@@ -88,9 +96,12 @@ public final class GeminiLive {
     /// an hour of talk, and every turn is billed for all of it.
     /// `voice` must be one of the names the live model takes (`Voices`): given any other,
     /// the service says nothing and speaks with a voice of its own choosing.
+    /// `showPage` is the description of the tool for putting a page of the talk on the screen
+    /// when someone asks to see it (prompts/tool-show-page.txt). Left out, as it is for a
+    /// talk without a screen, Stand does not get the tool.
     public func connect(apiKey: String, instructions: String, model: String = "gemini-3.8-live", voice: String = Voices.usual,
-                        lookUp: String? = nil, quiet: String? = nil, askHuman: String? = nil, floor: Bool = true, marksActivity: Bool = false,
-                        context: (limit: Int, keep: Int)? = nil) async throws {
+                        lookUp: String? = nil, quiet: String? = nil, askHuman: String? = nil, showPage: String? = nil, scrollPage: String? = nil, floor: Bool = true,
+                        marksActivity: Bool = false, context: (limit: Int, keep: Int)? = nil) async throws {
         var components = URLComponents(string: "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent")!
         components.queryItems = [URLQueryItem(name: "key", value: apiKey)]
         url = components.url!
@@ -129,6 +140,32 @@ public final class GeminiLive {
                     "required": ["question"],
                 ],
                 "behavior": "NON_BLOCKING",
+            ])
+        }
+        if let showPage {
+            tools.append([
+                "name": Self.showPageTool,
+                "description": showPage,
+                "parameters": [
+                    "type": "OBJECT",
+                    "properties": ["section": ["type": "STRING", "description": "The number of the section of the talk whose page to show, as the talk numbers it: 3"]],
+                    "required": ["section"],
+                ],
+                // Not NON_BLOCKING, unlike the others: Stand waits for the page before it says
+                // anything more. Left free to keep talking, it once went straight on with the
+                // talk while the page it had asked for came up under it.
+            ])
+        }
+        if let scrollPage {
+            // The same for scrolling at someone's asking (prompts/tool-scroll-page.txt): Stand waits for the page to move.
+            tools.append([
+                "name": Self.scrollPageTool,
+                "description": scrollPage,
+                "parameters": [
+                    "type": "OBJECT",
+                    "properties": ["direction": ["type": "STRING", "description": "Which way to move the page: down, up, or top."]],
+                    "required": ["direction"],
+                ],
             ])
         }
         setup = [
@@ -199,6 +236,25 @@ public final class GeminiLive {
             "name": Self.askHumanTool,
             "response": ["result": result],
             "scheduling": aloud ? "WHEN_IDLE" : "SILENT",
+        ]]]])
+    }
+
+    /// What came of putting a page on the screen at someone's asking. Stand has been
+    /// waiting for this, and speaks when it has it.
+    public func respond(showPage id: String, result: String) {
+        send(["toolResponse": ["functionResponses": [[
+            "id": id,
+            "name": Self.showPageTool,
+            "response": ["result": result],
+        ]]]])
+    }
+
+    /// What came of scrolling the page at someone's asking.
+    public func respond(scrollPage id: String, result: String) {
+        send(["toolResponse": ["functionResponses": [[
+            "id": id,
+            "name": Self.scrollPageTool,
+            "response": ["result": result],
         ]]]])
     }
 
@@ -361,6 +417,18 @@ public final class GeminiLive {
                 let question = (call["args"] as? [String: Any])?["question"] as? String ?? ""
                 onEvent(.askHuman(id: call["id"] as? String ?? "", question: question))
                 continue // acknowledged by the session, through respond(askHuman:result:)
+            }
+            if name == Self.showPageTool {
+                // A model may send the number as a number.
+                let args = call["args"] as? [String: Any]
+                let section = (args?["section"] as? String) ?? (args?["section"] as? NSNumber)?.stringValue ?? ""
+                onEvent(.showPage(id: call["id"] as? String ?? "", section: section))
+                continue // answered by the session once the screen has been looked at, through respond(showPage:result:)
+            }
+            if name == Self.scrollPageTool {
+                let direction = (call["args"] as? [String: Any])?["direction"] as? String ?? "down"
+                onEvent(.scrollPage(id: call["id"] as? String ?? "", direction: direction))
+                continue // answered by the session once the page has moved, through respond(scrollPage:result:)
             }
             if name == Self.floorTool { onEvent(.floorOpened) }
             if name == Self.quietTool { onEvent(.keptQuiet) }

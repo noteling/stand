@@ -1,0 +1,1 @@
+Puts the page of one section of the talk on the screen. Call it when someone asks to see a page: to go back to the last one, to move on to the next, or to look again at something shown earlier. Give the number of the section whose page they mean. A moment later you are told what the audience can now see, or that the page did not come up.

@@ -5,14 +5,16 @@ Everything here is yours. The app itself holds who Stand is and how it behaves.
 | Here | What it is |
 |---|---|
 | `.env` | Your keys. The panel writes the Gemini key here the first time. |
-| `brain.json` | How Stand looks things up: which model, which folders and GitHub repositories, and what it may reach beyond them. |
+| `brain.json` | How Stand looks things up: which model, which folders, GitHub repositories and pages, and what it may reach beyond them. |
 | `brief.md` | What you wrote in "For this meeting". |
 | `context/` | Notes: put Markdown or text files here and Stand can look things up in them. |
-| `linked/` | Copies of the GitHub repositories you added. Replaced on every update; do not edit. |
+| `linked/` | Copies of the GitHub repositories you added, and of the pages you added from your browser. Replaced on every update; do not edit. |
 | `runs/` | One folder for each session: the recording, a transcript, what happened and when. Nothing deletes these but you. |
 | `reports/` | What "Make a Problem Report" in the Stand menu makes: one zip with the last session, its recording included, and what this Mac gives Stand to work with. No keys, no notes. |
 
 Stand can give a talk, or sit in a discussion without one: choose "None: join the discussion" under Talk. In a discussion it speaks when spoken to and when "For this meeting" gives it a reason, so write there what it is in the meeting for.
+
+A talk can show its pages as it goes, a page for each section, in a window of Stand's own that you share in the call. Under **Pages** you can have them go up in your own Chrome instead. macOS then asks once whether Stand may control Chrome, and Chrome has to be told to let Stand look at its pages and move them: in its menu bar, View > Developer > Allow JavaScript from Apple Events. With that on, every program that macOS lets control Chrome can run a script in any page there, the ones you are signed in to included, so read "In your own Chrome" at github.com/noteling/stand before you choose it.
 
 To change how Stand behaves on this Mac, put a file at the same path as the one inside the app, for example `prompts/presenter.md`, `prompts/attendee.md` or `talks/my-talk.md`. A file here wins over the app's own. The app's copies are in `Stand.app/Contents/Resources/defaults`.
 
@@ -21,7 +23,7 @@ Looking things up needs Claude Code on this Mac, signed in. Without it Stand sti
 ## Before you take it into a meeting
 
 - **Tell the people there.** Stand listens to the meeting and keeps a recording of every session in `runs/`.
-- **What leaves this Mac.** The meeting's sound goes to Google, under your key, for as long as Stand is in the meeting. What Stand looks up, and the notes it looks in, go to Anthropic, under the Claude Code login on this Mac. Nothing goes to the people who make Stand.
+- **What leaves this Mac.** The meeting's sound goes to Google, under your key, for as long as Stand is in the meeting. With Claude Code on this Mac, what is said in the meeting also goes to Anthropic, as text, under that login, with what Stand looks up and the notes it looks in. Nothing goes to the people who make Stand.
 - **What it costs.** The Gemini key is yours and so is the bill: about 20 cents for the three minutes in which Stand introduces itself and takes a few questions, and by our estimate 5 to 10 dollars for an hour of steady talk. The panel shows what your sessions have cost so far.
 
 ## What Stand may reach

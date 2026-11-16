@@ -178,8 +178,10 @@ public enum Project {
     /// gave one: Stand cannot see the notes, and looks things up more readily when it knows
     /// what is in them.
     /// `canAskHuman` adds how to put a question to its human; leave it off when nobody is there to answer.
+    /// `screen` says the talk is given with its pages on a screen (`Screen`). Without one,
+    /// the lines of the talk that name pages are left out: Stand should not read of pages nobody will see.
     public static func instructions(root: URL, talk: String = "talks/introducing-stand.md", brief: String = "", canLookUp: Bool = false,
-                                    notesOutline: String? = nil, canAskHuman: Bool = false) throws -> String {
+                                    notesOutline: String? = nil, canAskHuman: Bool = false, screen: Bool = false) throws -> String {
         let outline = try notesOutline.map { "\n\n" + (try read("prompts/notes-outline.md", root: root)).replacingOccurrences(of: "{outline}", with: $0) } ?? ""
         if talk.isEmpty {
             // What Stand does about a question it cannot answer depends on whether it has a brain to ask.
@@ -197,12 +199,18 @@ public enum Project {
             if canAskHuman { parts.append(try read("prompts/voice-ask-your-human.md", root: root)) }
             return parts.joined(separator: "\n\n")
         }
+        let plan = try read(talk, root: root)
         var parts = try [
             read("prompts/presenter.md", root: root),
             "# Your character\n\n" + demote(read("identity/character.md", root: root)),
             "# Who you are\n\n" + demote(read("identity/stand.md", root: root)),
-            "# The talk\n\n" + demote(read(talk, root: root)),
+            "# The talk\n\n" + demote(screen ? plan : TalkPlan.withoutPages(plan)),
         ]
+        if screen {
+            // What Stand does about a question on what a page says depends, as with any question, on whether it has a brain to ask.
+            let about = try read(canLookUp ? "prompts/voice-screen-look-it-up.txt" : "prompts/voice-screen-no-notes.txt", root: root)
+            parts.append(try read("prompts/voice-screen.md", root: root).replacingOccurrences(of: "{about}", with: about.trimmingCharacters(in: .whitespacesAndNewlines)))
+        }
         let brief = brief.trimmingCharacters(in: .whitespacesAndNewlines)
         if !brief.isEmpty {
             // Its headings go below this section's own, so the note cannot pass for a section of the instructions.

@@ -1,0 +1,5 @@
+[stage manager] Nobody is speaking. The talk now goes to the section they asked for. Give section {number}, "{title}"{time}, from its start, and stop when you have made its points:
+
+{points}
+
+Never reply to this message itself.

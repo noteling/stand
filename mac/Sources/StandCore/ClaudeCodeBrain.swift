@@ -36,6 +36,7 @@ final class ClaudeCodeBrain: Brain, @unchecked Sendable {
     /// Preparing a talk before a meeting is one long question, and is given longer.
     static let questionLimit = 120.0
     private let limit: Double
+    private let bare: Bool
 
     private let settings: BrainSettings
     private let executable: String
@@ -154,7 +155,11 @@ final class ClaudeCodeBrain: Brain, @unchecked Sendable {
             .last { $0.hasPrefix("/") && manager.isExecutableFile(atPath: $0) }
     }
 
-    init(settings: BrainSettings, executable: String, library: NotesLibrary, instructions: String, root: URL, limit: Double = ClaudeCodeBrain.questionLimit) {
+    /// `bare`: its instructions are all it has. Nothing is said to it about notes, folders
+    /// or tools, because it is asked something that needs none of them (`Watch`).
+    init(settings: BrainSettings, executable: String, library: NotesLibrary, instructions: String, root: URL, limit: Double = ClaudeCodeBrain.questionLimit,
+         bare: Bool = false) {
+        self.bare = bare
         self.limit = limit
         self.settings = settings
         self.executable = executable
@@ -279,6 +284,7 @@ final class ClaudeCodeBrain: Brain, @unchecked Sendable {
             if !notes.map.isEmpty { system += "\n\nWhat they hold besides the notes, by the names above:\n\n" + notes.map }
         }
         if inline, notes.hasDocuments { system += "\n\n# The notes\n\n" + notes.inlined }
+        if bare { system = instructions }
 
         // The program starts in an empty folder of its own, and is given the sources by
         // name. Inside them its file tools need no permission. A file anywhere else comes

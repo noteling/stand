@@ -1,0 +1,17 @@
+[the watch] {why}
+
+Time in the meeting: {clock}.
+
+The place in the talk: {place}
+
+On the screen: {screen}
+
+Said in the last minute, oldest first:
+
+{said}
+
+{coming}
+
+Right now: {now}
+
+One line: NOTHING, SHOW n, PLACE n, WAIT or GO.

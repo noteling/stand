@@ -1,0 +1,40 @@
+{
+  "description": "The talk with pages, steered in words, three ways the stage manager cannot hear. Someone asks Stand to hold on, and comes back ten seconds later: the talk should wait, where a timer would have handed Stand the next part after three seconds. Someone asks to skip ahead to a later part: the talk should go on from there, under that part's page, and not come back to what was skipped. And someone asks to hear an earlier part again. What to read in the report: the table \"The watch, and the hand that follows the mouth\", and whether each section was said under its own page. Run it with --screen, and with --no-watch to see what happens without the watch. Lines are timed by how long Stand has spoken.",
+  "during": [
+    {
+      "label": "asks it to hold on",
+      "kind": "question",
+      "afterSpeechSeconds": 22,
+      "voice": "Samantha",
+      "say": "Sorry, could you stop there for a moment? I need to let someone into the room."
+    },
+    {
+      "label": "comes back",
+      "afterQuietSeconds": 10,
+      "voice": "Samantha",
+      "say": "Right, we are all here now. Please carry on."
+    },
+    {
+      "label": "asks to skip ahead",
+      "kind": "question",
+      "afterSpeechSeconds": 44,
+      "voice": "Daniel",
+      "say": "We are a bit short on time. Could you skip ahead to the part about what it costs?"
+    }
+  ],
+  "after": [
+    {
+      "label": "asks for an earlier part again",
+      "voice": "Daniel",
+      "say": "Could you go through the four parts once more, with their page up?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "Thanks, that's all the questions we have."
+  },
+  "talkIsAtLeastSpeechSeconds": 45,
+  "talkEndsAfterQuietSeconds": 16,
+  "maxMinutes": 8
+}

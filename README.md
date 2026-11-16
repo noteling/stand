@@ -43,6 +43,98 @@ The brain works in the folder itself, with its own search (grep): nothing is cop
 
 Tried with Stand's own repository as the system, scripted voices only (see the status below). Not tried: a code base much bigger than this one, and anything by voice.
 
+### A talk with its pages on the screen
+
+Stand can give a talk with a page up for each section: the document the section is about, with the right heading at the top. In "For this meeting", ask for it in so many words ("Show the documents as you go"), and the talk its brain prepares names a page under each section's heading:
+
+```
+## 3. How it is built (about 45 seconds)
+
+Show: handbook/architecture.md # How a request is handled
+```
+
+Before the `#` is a document in one of the folders under **Notes…**, by the folder's name and the path inside it, or an address (`https://…`). After it is the heading to bring to the top. The line is yours to change, like the rest of the talk.
+
+When such a talk is chosen, the panel says so under the talk's name, with a link, **Open it**. That opens a window, **Stand: the screen**, with the talk's first page in it, before Stand has said a word: put it where you want it and share it in the call. **Start the talk** uses the window that is open, and opens it when it is not. Stand moves it. The window comes back where you last put it, and you can pinch to make the page bigger. (The panel stays out of the share, as before.)
+
+**In your own Chrome.** Under **Talk**, **Pages** says where the pages go up: in a window of Stand's own, or in Chrome. With Chrome, **Open it** opens a window in the Chrome you already use, with whatever you are signed in to there, and that is the window to share. Stand uses the one tab it opened and no other. A page named by its address is the page itself. A document from your folders is drawn into a file and loaded from there, since a browser draws no Markdown.
+
+Two things have to be allowed first, each once, and neither is Stand's to give:
+
+1. macOS asks whether Stand may control Chrome, the first time a page goes up there.
+2. Chrome lets no other program run a script in its pages until you choose **View > Developer > Allow JavaScript from Apple Events** in its menu bar. Without that, Stand can put a page in the window and can neither move it nor look at it.
+
+Until both are, a page comes back as not shown, and the panel says which of the two is in the way. `$BIN --probe doctor` says where both stand without opening anything.
+
+Know what the second one opens before you choose it. With it on, every program that macOS lets control Chrome can run a script in any page of that Chrome profile, the ones you are signed in to included. That is why Chrome comes with it off. Stand's own window needs neither and reaches nothing of yours, which is why it stays the default.
+
+**Pages Stand did not draw.** A page at an address is built for people, not for Stand. Its words may sit in a panel that scrolls inside a window that does not; a bar may stay stuck across the top; a menu has headings of its own; the words may arrive a second after the page. The hand and the eye cope with each of those, in either kind of window. A heading is brought to just under whatever is stuck at the top, and put there again if the page changes once it has moved. Only the headings of the page proper count. A section too near the end of its page is shown where it is. And the eye asks not only where the heading is but whether something is lying over it. Tried, with no voice, on two test pages built that way (`poc/heckler/screen/site/`) and on a file on GitHub, an article on Wikipedia and a page of MDN.
+
+**A talk from pages in your browser.** Add the pages under **Notes…** with **Add page**, write in "For this meeting" what the talk is and "show the pages as you go", and **Prepare a talk from this**. The brain writes the talk from what the pages say, and gives each section the page it is about, by its address and a heading on it. In the meeting the page itself is shown, never the copy, and the copy is what the brain looks things up in when someone asks what the page says. A heading the page does not have is told under the talk's name before the meeting, as for a document. `$BIN --probe page <address>` prints what Stand reads of a page, without keeping it.
+
+A page that is not there is told before the meeting and not in it. When a talk names a document that is not in your folders, or a heading its document does not have, the panel says which section, in orange, under the same line; so does `--probe prepare` when the brain has just written the talk. Nothing is asked: Stand gives such a section without its page and says so. An address is not fetched for this check.
+
+**The order is the whole of it.** A hand, an eye and a voice that each kept their own time would drift apart: the voice model runs seconds ahead of its own sound. So nothing is kept in time. One part decides the order, the stage manager, which is ordinary code, and the page changes only between sections, in the silence that is already there:
+
+1. the page for the section that comes now is put up;
+2. the screen is looked at, to see what came up;
+3. only then is Stand told to give the section, and what the audience can see.
+
+- **When a page does not come up** (no such document, no such heading, an address that does not answer), Stand is told so in words, with what the audience sees in its place. It says so in a sentence ("That page isn't coming up, so I'll just tell you") and gives the section without it.
+- **When someone asks for a page** ("Sorry, can you go back to the previous page?"), Stand says a word, the page of that section goes up and is looked at, and Stand says that it is up and answers. It does not go on with the talk while that page is showing. A few seconds after it has finished, the talk's own page comes back, Stand is told, and the talk goes on from where it was.
+- **When someone cuts in with a question**, the page stays where it is.
+- **When someone asks what the page says** ("how wide does that page say the window is?"), Stand cannot read the screen, and knows it: it is told what is at the top, a heading. But a page from your folders is also one of its notes, so it says "let me check" and its brain reads the document. In 3 runs of 3 the answer came in under a second and was the page's own figure.
+- **Inside a section the page follows the voice.** When the part of the page a section is about is longer than the window, the page moves down as Stand speaks. Each point of the section after its first has a place on the page (the paragraph, list item or row that shares most of the words that say what it is about), and the page is brought to it as that point comes up, going by what the audience has heard so far. The first point is made under the heading, and a point with no place of its own where the last one before it that has one is written about. It is the one move made while Stand is speaking, and no model makes it. Measured against the voice in the eight moves that could be measured, the page arrived between 0.3 seconds after a point began and 3.6 seconds before it, and within a second for six of them: near enough for a page to keep up, and not near enough to point at anything.
+- **When someone asks to scroll** ("can you scroll down a bit", "back to the top"), the page moves and Stand is told what is at the top of it now, or that it is already at its end, and says so. From the moment of asking the page is theirs: it stops following the voice until the talk goes on. Then the page goes back to where the talk was, as a person scrolls back to their place before going on: in 4 runs of 4 it was there 0.8 seconds after the rest of the section was handed back, as Stand began to speak.
+
+**Steering it in words.** People do not only ask for pages. They say "okay, thank you, you can continue", "hold on a minute", "we're short on time, can you skip to the part about costs". Stand's voice understands all of that and acts on it by itself, within a second or two. The stage manager, which keeps the place in the talk and the screen, understands no words: the first time a person tried a talk with pages, they asked for the page before, said "you can continue", and Stand gave a whole section under the page they had asked for. Two things keep the rest in step with the voice, and neither tells the voice what to say:
+
+- **The hand follows the mouth.** Stand's words are made a few seconds ahead of its voice. When it goes on with the talk under a page someone asked for, that is seen in what it is about to say, and the talk's own page goes back up, a second or so after its voice begins. No model is asked.
+- **A brain keeps watch.** A process of its own, with the plan of the talk and nothing else, is shown every five seconds, and at once when someone in the audience has spoken, where the talk is, what is on the screen and why, what was said, and what Stand is about to say. It answers in one line, nearly always NOTHING. Otherwise: SHOW a section's page; PLACE, when the talk has moved to another section because someone asked; WAIT, when someone asked Stand to hold on (the stage manager then hands it nothing, for as long as it takes); GO, when someone said to go on. An answer that arrives after the talk or the screen has moved is dropped. The panel says, under the screen's line, when the talk is waiting or has moved.
+
+Asked to wait, Stand says so and stops, and if it says so and goes on, it is stopped at the end of that sentence. Asked to skip ahead, the talk goes on from there under that part's page and does not come back to what was skipped.
+
+The eye has two forms, and both are as plain as they sound. For a page this window drew, the page is asked what is at its top. For anything else there is a picture: the window is photographed and the words in it are read on this Mac, with no model, in about half a second. `--eye picture` uses that one, to try what any other screen would need. In Chrome only the first is used: a picture of another program's window would need screen recording allowed.
+
+```
+STAND_BRAIN=poc/heckler/screen/brain.json $BIN --probe screen poc/heckler/screen/talk.md [--eye picture] [--show]
+        # the hand and the eye with no voice: each page the talk names, what came up, how long it took
+STAND_BRAIN=poc/heckler/screen/brain.json $BIN --rehearse poc/heckler/screen.json --talk poc/heckler/screen/talk.md --screen
+        # the screen's test: a question about the page, "go back to the previous page", and a page asked for at the end
+... --screen --screen-fails 3     # the third page asked for does not come up
+... --show-screen                 # the same, with the window on the display, to watch
+... --show-screen --hear          # to watch and listen: Stand's voice and the scripted audience through the speakers, no microphone
+STAND_BRAIN=poc/heckler/screen/brain.json $BIN --rehearse poc/heckler/screen-scroll.json --talk poc/heckler/screen/long-talk.md --screen
+        # the scrolling test: a section longer than the window, "scroll back up to the top", "scroll down a bit"
+$BIN --rehearse poc/heckler/screen-any.json --talk talks/<a talk of yours with pages>.md --show-screen --hear
+        # any talk with pages, watched: someone asks to go back a page in the middle, and for the first page at the end
+STAND_BRAIN=poc/heckler/screen/brain.json $BIN --rehearse poc/heckler/screen-go-on.json --talk poc/heckler/screen/talk.md --screen
+        # steered in words: "can you go back to the previous page", then "okay, thank you, you can continue"
+STAND_BRAIN=poc/heckler/screen/brain.json $BIN --rehearse poc/heckler/screen-steer.json --talk poc/heckler/screen/talk.md --screen
+        # "could you stop there for a moment", ten seconds, "please carry on"; then "could you skip ahead to the part about what it costs"
+... --no-watch                    # either of them with no brain keeping watch (STAND_HAND_FOLLOWS=off: and no hand following the mouth)
+$BIN --probe watch runs/<a finished talk>   # that talk played again to the watch: what it would have said, and when; no voice model, no credit
+STAND_BRAIN=poc/heckler/screen/brain.json $BIN --probe screen poc/heckler/screen/long-talk.md --places
+        # where on its page each point of a long section was found, with no voice
+$BIN --probe screen talks/<a talk with pages>.md --in-chrome
+        # the hand and the eye in a window Stand opens in your Chrome (STAND_SCREEN=chrome in front of any run does the same)
+python3 -m http.server 8765 --bind 127.0.0.1 --directory poc/heckler/screen/site
+STAND_BRAIN=poc/heckler/screen/brain.json $BIN --probe screen poc/heckler/screen/site-talk.md --places [--in-chrome]
+        # pages Stand did not draw: a wiki-like page and an app-like one, served on this Mac by the line above
+```
+
+`--hear` is for a person: a rehearsal is otherwise silent, and with it both sides are played as the audience would hear them (`--hear 0.3` is quieter). It uses no microphone, so nothing you say reaches Stand; the app is where you talk to it.
+
+A rehearsal's report then has a table, "The screen": when each page was asked for, by the talk or by the audience, whether Stand was speaking at that moment, and how soon after it Stand spoke. The pictures of the screen, as it was each time, are in the run's folder.
+
+What it does not do:
+
+- **It does not point.** The page keeps up with the voice to within a few seconds, so Stand cannot say "this box here".
+- **Only the talk's own pages** can be asked for, by the section they belong to.
+- **Only pages**, in its own window or in Chrome. It does not drive Keynote or PowerPoint. A page behind a sign-in has been tried in neither.
+- **It reads only the pages you name.** It follows no links from them, and reads nothing else that is open in your browser.
+- **It does not share the screen itself**, or join the call. Its human does both.
+
 ### Whose voice
 
 Stand speaks with one of thirty voices, and which one is yours to choose: **Voice** in the panel. The menu gives each voice as the voice service describes it ("Kore: firm, direct, authoritative"). **Hear it** says a few lines in the chosen one, about a second after you press it, and that is how to choose: the descriptions are the service's, and nobody here has heard the voices. The choice is kept on this Mac. Until you make one the voice is Kore, which every session before 2026-11-13 had.
@@ -89,7 +181,7 @@ The first time, on that Mac:
 
 1. Without `--notarize`, macOS refuses to open the app until told to: System Settings > Privacy & Security > Open Anyway.
 2. The panel asks for a Gemini API key, once, and keeps it in `~/Stand/.env`.
-3. macOS asks for the microphone and for system audio recording when the first talk starts.
+3. macOS asks for the microphone and for system audio recording when the first talk starts. If you have a talk's pages go up in Chrome, it also asks, once, whether Stand may control Chrome.
 4. Looking things up needs Claude Code on that Mac, signed in. Without it Stand talks and listens, and says when it does not know.
 
 To report on a session from that Mac, choose **Make a Problem Report** in the Stand menu. It makes one zip in `~/Stand/reports` and shows it in the Finder: what that Mac gives Stand to work with (the build, whether there is a key, the microphone permission, where the brain is, how many notes), `brain.json`, and the last session's record with its recording as a small audio file. It holds no key and no notes, and nothing is sent anywhere: you send it. `Stand --probe doctor` prints the first part by itself.
@@ -203,6 +295,31 @@ Two more things were learned on the night of 2026-11-12, and a discussion is now
 
 With both, the question was answered in 22 runs of 22, 14 of them with no prompter, and the transcript had it whole every time. The price is turns: about three times as many (see "What a session costs"). `--ends-after-when-out 1.5` and `--turn-finishes-within 0` on a rehearsal bring the old ways back, one each.
 
+### A call for Stand, and the other short sounds
+
+While Stand is giving a talk it cannot listen: one model speaks and hears, and not both at once. A sound from the room that goes on stops it, and then it hears. Since 2026-11-13 a sound has had to be loud for 0.6 seconds to count, so that a cough, an "mm-hm" or a short laugh does not stop a talk. That let "excuse me" pass as well. The first person to try it said "hey", "excuse me" and "hello" five times in ten seconds, and only a whole sentence got through. No length tells the two apart: their words were loud for 0.24 to 0.48 seconds, and the laugh that has to pass for 0.46.
+
+So in a talk an ear listens to the short sounds, the ones that would be let pass. It has two parts:
+
+- **The Mac's own sound classifier** says whether the sound was words or a noise. It runs on the Mac and takes less than a tenth of a second. A noise goes no further.
+- **A small listening model** is handed the words, about a second of sound, and says whether someone is calling for the speaker ("excuse me", "hello?", "wait", its name) or not ("yeah", "right", a remark to a neighbour). It answers in 0.7 seconds.
+
+Only a call stops Stand. It then says "Yes?" and waits for the person to say what they want, and the stage manager hands it nothing meanwhile. Everything else is as it was: a noise, words that are no call, and any failure of the ear are let pass. So the ear can make Stand stop sooner for someone who wants it, and can do nothing else.
+
+Stand stops about a second and a half after the word begins: the word itself, a fifth of a second to be sure it is over, and the two answers.
+
+What leaves the Mac is different with it. A short sound that did not stop Stand used to go nowhere. One that the classifier takes for words now goes to the voice service's listening model, under the same key as the meeting's sound.
+
+```
+# the ear by itself, over a kept recording or a list of sounds
+$BIN --probe ear runs/<a run> --listen
+$BIN --probe ear --sounds poc/heckler/ear/sounds.txt --listen
+# in a talk (needs two kept recordings); --no-ear shows the fault
+$BIN --rehearse poc/heckler/talk-call.json
+```
+
+`STAND_EAR=off` in front of a run is the talk without the ear, and `STAND_EAR_MODEL=<model>` tries another listening model.
+
 ### What a session costs
 
 The voice service does not charge by the minute. It charges every turn of the model for everything the model has in mind at that moment: Stand's instructions (about 3,800 tokens of text, its tools included), and all the speech of the session that it still keeps, its own and everyone else's, at 25 tokens a second. A turn is each time the model answers, is told to carry on, is passed a note, or decides to say nothing after someone stops speaking.
@@ -277,7 +394,7 @@ To see one at work with no person involved (about two minutes):
 $BIN --rehearse poc/heckler/brief.json --brief poc/heckler/brief.md
 ```
 
-### Notes: folders and GitHub repositories
+### Notes: folders, GitHub repositories, and pages in your browser
 
 When someone asks Stand a fact it does not know, it says "let me check", a text model (the brain) finds the answer in the notes, and Stand says it in its own words.
 
@@ -286,13 +403,15 @@ Notes are Markdown and text files. A source is a folder, and whatever else is in
 - `context/` in this folder;
 - any other folder on this Mac;
 - a GitHub repository (github.com or GitHub Enterprise). Stand keeps a copy of the repository's notes and code in `linked/`, and checks for changes when the app opens, when a meeting starts, and every ten minutes. It uses GitHub's API, not git, the way Noteling links a team's tools.
+- a page in your browser, by its address: a wiki page, a page of an app, anything behind a sign-in that only your browser has. Stand reads it through your own Chrome, as you see it there, and keeps what it says as a note in `linked/pages/`. It is read when you add it and when you press **Check now**, and at no other time, because reading it opens a window in your browser. Removing the page removes the copy. (It needs what showing pages in Chrome needs: see "In your own Chrome" above.)
 
-Add a folder or a repository with the panel's **Notes…** link, or from the command line with `--probe sources --add`. Either writes to `brain.json`:
+Add any of them with the panel's **Notes…** link (an address is added with **Add repository** or **Add page**, since only you know which it is), or from the command line with `--probe sources --add` and `--probe sources --add-page`. Either writes to `brain.json`:
 
 ```json
 "sources": [
   {"folder": "~/Documents/pilot-notes"},
-  {"repo": "https://github.com/your-team/handbook", "branch": "main", "path": "docs", "token": "$HANDBOOK_TOKEN"}
+  {"repo": "https://github.com/your-team/handbook", "branch": "main", "path": "docs", "token": "$HANDBOOK_TOKEN"},
+  {"page": "https://wiki.example.com/display/LEDGER/How+refunds+work"}
 ]
 ```
 
@@ -478,6 +597,100 @@ npm run heckler -- --provider gemini --script heckler/junk.json      # one minut
 STAND_TALK=poc/heckler/short-talk.md npm run heckler -- --provider gemini --script heckler/ending.json   # one minute: the end of a talk
 node src/listen.js runs/<run>/stand.wav --from 30 --to 32            # ask a model what a stretch of audio says
 ```
+
+### Status (2026-11-16, a second version to download)
+
+The user: "Build a new dmg version, and push whatever we have into remote git as well." Version 0.2.0 is everything since 0.1.0, which is the four statuses under this one: pages on the screen, a talk steered in words, an ear for short sounds, pages in your own Chrome.
+
+- **A new copy starts as 0.1.0 did.** Pages go up in a window of Stand's own unless Chrome is chosen, so nothing more is asked at the start. The ear is on. The watch and the prompter run only where Claude Code is.
+- **Said in full now:** with Claude Code on the Mac, what is said in the meeting goes to Anthropic as text. The disk image's "Read me first" and the note in a new copy's folder had named only what Stand looks up and the notes it looks in. It has been so since the prompter was built, and the watch does the same.
+- **Checked before the commit,** on an app packaged the same way and not sent to Apple, run in an empty folder of its own:
+  - It holds the talk that introduces Stand and no other, nothing with this Mac's paths in it, and both of its entitlements. Its doctor reached Chrome with an Apple Event from under the hardened runtime.
+  - The hand and the eye: 6 pages of 6, by asking the page and by reading pictures of the window.
+  - The screen's scripted talk: 5 sections of 5, 7 pages up and none failed, both requests for a page right, the question about the page looked up in 0.7 seconds, the watch asked 20 times and silent. 20 cents.
+  - The ear's list of sounds, from the packaged app and from the repo's build in the same hour: 194 right of 198, and 207 of 212.
+- **Tried for the first time: a talk with pages on a Mac with no Claude Code** (ten scripted talks, the brain's program made unfindable). Every section and every page of the talk in all ten, and both requests for a page in nine. Two things came out of it:
+  - Asked what a page says, Stand answered "I don't know. The page doesn't mention" it, and the page does. Its instructions for that case now say never to say that a page does not say something: "I don't know", and nothing about the page, in the nine runs since.
+  - In one run of the ten the voice model wrote its tool calls into its own transcript as text and made none of them, so a page that was asked for never came. It is in none of the 890 sessions kept before. Nothing catches it yet.
+- **Seen in the ear's list that morning:** five remarks taken for a call in 410 judgments ("Come here", "Look at this"), where the evening before had one in 421. The listening model's answers move from one day to the next.
+- **Not checked, and not checkable without a person:** hearing and speaking under the signature a download carries, as for 0.1.0, and Chrome under that signature, where macOS asks once whether Stand may control it.
+- **Cost:** $1.99 for eleven scripted talks, and about 4 cents for the lists.
+
+### Status (2026-11-15, evening: pages in your own Chrome)
+
+The user, after two tries by voice, of the window a talk's pages are shown in: "is like a 'weird page', can it be literally chrome?" Their own Chrome and not one of Stand's, because at a company the pages to present are internal ones behind a sign-in.
+
+- **Built:** a talk's pages can go up in a window Stand opens in the person's own Chrome, chosen under **Pages** in the panel. The hand and the eye are one piece of code for both kinds of window, and were made to cope with pages Stand did not draw.
+- **Checked, with no voice:** in Stand's own window the three talks of drawn pages come out line for line as before the change. In a second copy of Chrome 157 with a scratch profile, the long talk gave the same places and the same answers to scrolling as the own window, the test site came up 6 pages of 6 in 3 runs of 3, and three real public pages 6 of 6. The app's own way of opening the screen passes both ways. In the user's own Chrome, where the setting is off, the window opens, the page loads, and Stand says what to choose in Chrome's menu.
+- **Found on the way:** a gentle scroll in a window that is off the display stalls and comes back under the next move (such a window now moves its page at once). GitHub's file page grows a bar a moment after a scroll, and the heading was behind it (a heading is now put in place again until that moves nothing). An event sent to Chrome by name went to the wrong one of two running copies. A run that ended before its window was closed left a test tab in the user's Chrome.
+- **With a scripted voice**, once credit was back that evening (eight runs, $1.35): in Stand's own window the screen's tests went as before and the talk over the two test pages gave 6 sections of 6 with 8 pages up; with the pages in the second copy of Chrome, the scrolling test, "you can continue" (the talk's own page back 1.25 seconds after Stand's first sound) and the talk prepared from the two pages all went as in the own window, the last of them also in the rebuilt app. Nobody has seen or heard any of it.
+- **Not known:** the user's Chrome with the setting on; a page behind a sign-in; a company's Chrome; Confluence itself.
+- **Then built, the same evening, at the user's word:** a talk prepared from pages in the browser. A page is a third kind of source: read through the person's own Chrome when they add it, kept as a note, and shown in the talk as itself. Tried with no voice: the brain wrote a talk from the two test pages, named them by address with headings they have, and its pages came up in both kinds of window. On the way: the opening of a talk no longer follows the voice down its page (its second sentence had sent the page to the last section); a page whose own words have not arrived is not looked at yet (it came up as the menu's heading of the same name while the page still said "Loading"); and a part of a page with no box of its own is not taken for hidden (all of MDN's page is in one).
+- **Not built, and my choice at the user's "your choice":** driving a browser through Accessibility. It cannot run the scripts that move and look at a page, so it would be a second hand and eye with weaker moves, and it would still not turn a slide in a slide program.
+- **Cost:** $1.35.
+
+### Status (2026-11-15, an ear for short sounds)
+
+Later the same day the person tried the rebuilt app and said it works better, with one thing: "i did like 'excuse me' or 'hello' many times and only the last one able to catch that 'i am talking to interrupt' and stop". The recording had six tries in ten seconds, the first five loud for 0.24 to 0.48 seconds each, under the 0.6 that a sound needs to stop a talk. Stand stopped 9.9 seconds after the first. We talked it through before anything was built. The rule is the one made for their laugh two days before, and no number separates the two. They chose an ear that works while the mouth talks, on two conditions (a remark between two other people should not stop Stand for now, and not every word has to) and with one caution: "i don't want to make the situation worse".
+
+- **Built:** an ear for the short sounds in a talk (see "A call for Stand, and the other short sounds" above); what Stand does when it is called for; `--probe ear`, a list of 212 sounds that each say what they should be taken for, and a scripted talk with calls and other short sounds in it.
+- **Measured, with no session:** over the person's own run each of the five tries came out a call, and Stand would have stopped 1.2 to 1.6 seconds after the word began. Over the recording of the 13th nothing did. Of 421 judgments over the list, 414 were right: one remark was taken for a call, and six calls were not heard.
+- **Measured in 17 scripted talks:** the ear heard every call that reached it, 43 of 43, and Stand was cut off 1.4 seconds after the sound began at the median (1.1 to 2.6). "Yeah", "right" and a real laugh never stopped it. "You go ahead", said to someone else, did once in 15, before the ear's rules said that words which give way are never a call. Without the ear every short line passed.
+- **Found and changed on the way:** stopped by "hello", Stand said "Hello" and went straight on with the talk. It is now told at the cut that someone spoke to it in a word or two, it says "Yes?", and the stage manager waits four seconds for the person, where it had handed Stand the rest of the talk a third of a second later. And a bare "wait" made the watch hold the talk, which then stood still after the person's question had been answered; the watch now ends such a wait itself.
+- **Unchanged, checked again:** the north-star talk (8 sections of 8), the laughter test twice, the two steering tests.
+- **Not known:** how any of it sounds. A real call, a cough, another language. Whether a second and a half before Stand stops, and as long again before "Yes?", feels like being heard.
+- **Cost:** $5.36 over 26 sessions, and under a dollar more for the listening model, which Stand's own count does not see. And $8.62 for a check that should not have been run as it was: two rehearsals with Stand's own voice fed back into the microphone, in which Stand stopped itself some 450 times before the second was stopped by hand. The fed-back voice was far louder than any real microphone has returned, so they showed only that the ordinary rule fails first there. By Stand's count $79.85 of the $80 put in is spent.
+
+### Status (2026-11-15, a talk steered in words)
+
+The first time a person tried a talk with pages by voice, for two minutes, they asked for the page before, asked something, and said "Okay, thank you. You can continue." Stand went on with the talk and the page they had asked for stayed up for the rest of the section. They did not want a patch for it: "the brain is not driving is a fundamental issue, patch can fall into rabbit hole". What we settled on, in a long talk about what should drive what: the plan is frozen and its owner is deaf. The stage manager owns the place and the screen and understands no words; the voice understands them and acts by itself. What was built is their two ideas, a brain on a rhythm that corrects and parts that react to each other "like octopus" (see "Steering it in words" above).
+
+- **Built:** a brain that keeps watch over a talk and answers in one line (NOTHING, SHOW, PLACE, WAIT, GO); a hand that puts the talk's own page back when Stand goes on by itself under another; a talk that waits when someone asks it to, and moves when someone asks it to skip ahead; `--probe watch`, which plays a finished talk to the watch again at no cost on the voice side.
+- **Measured, with scripted voices, 34 runs (31 in the debug build, 3 in the rebuilt app):**
+  - "You can continue": Stand goes on by itself every time (9 runs of 9). The talk's own page was back 1.1 to 1.7 seconds after its first sound, in 8 runs of 8. (The figure first written here, 0.6 to 1.4, was measured from the wrong two moments.) Without the new parts it stayed away for the rest of the section.
+  - "Could you stop there for a moment": the talk waited the ten seconds until "please carry on" in 17 runs of 17. Without the watch it ran on through three sections.
+  - "Could you skip ahead to the part about what it costs": the talk went on from that part, under its page, in 15 runs of 15, and never came back to what was skipped. Once, on a prepared talk, four seconds of silence came before the part began.
+  - The watch answered in 0.7 seconds at the median over 715 asks, and in the seven runs with no steering in them it was asked 166 times and did nothing.
+- **Found and changed on the way:** moved to a part "which Stand is giving", the stage manager took that part for finished when Stand stopped after one sentence of it. What is left is now handed back. And asked to wait, Stand once said it would and went straight on; its role now says what to do, and if it goes on it is stopped at the end of the sentence.
+- **Not known:** how any of it looks or sounds. Whether the watch ever moves a page that should have stayed, in a long talk with real people. Whether a second and a half of the other page after "continue" is too long. It could be about half a second: the watch says GO a third of a second after Stand's first sound, and nothing is done with that yet. It could come first, if Stand's first sound were held back about a second. Nothing has been tried by voice since the app was rebuilt.
+- **Cost:** $5.32 over the 34 runs.
+
+### Status (2026-11-14, pages on the screen)
+
+The user's fear about giving Stand hands and eyes: "the hand brain and voice out of sync, in terms of latency plus all the mismatch, will turn the whole thing like a yips patient". They shrank the problem to one loop (the material is there; show the right page, know what is showing, talk about it, and do not act stupid when the page fails), and added that the audience may ask to go back a page.
+
+- **Built:** a talk can name a page for each section, and is given with those pages in a window of Stand's own (see "A talk with its pages on the screen" above). The brain writes the page lines when it prepares a talk and is asked to. The audience can ask for a page.
+- **Measured, with scripted voices and the window off the display:** over 18 runs the talk asked for 95 pages, and none went up while Stand was speaking. Stand began to speak 0.5 to 3.8 seconds after a page had been looked at, within a second and a half for 92 of them. A page made to fail was announced in a sentence in 7 runs of 7. Asked to go back a page, or for a page by what is on it, Stand asked for the right one 36 times of 36.
+- **Found and changed on the way:** asked to go back a page, Stand said "Sure, one moment" and went straight on with the talk, under the wrong page. It now waits for the page it asked for (0 of 7 runs since), and the talk's own page comes back before the talk goes on.
+- **Tried on a real project:** the brain prepared a four-minute talk about another project of the user's, from its documents and code, with a page for each section; all five pages came up, read from a picture of the window, and the talk ran twice with every section given.
+- **Not known:** how it looks and sounds to a person. Nobody has watched the window, shared it in a call, or tried a page behind a sign-in. A slide program and a browser are not driven at all.
+
+About $3.50: 18 runs with the screen and one of the north-star script, which is unchanged.
+
+**Later the same day, scrolling.** The user asked why the page did not scroll, and it had been my caution, not a limit: every move until then was made in a silence. Now the page follows the voice down inside a section, and the audience can ask for it to be scrolled.
+
+- **Measured:** in 7 runs of the scrolling test and one more of the talk about the user's project, the page was sent down after the voice 16 times and arrived 15 times. Where it could be measured it arrived between 0.3 seconds after the voice reached a point and 3.6 seconds before it. Asked to scroll back to the top, Stand did, 6 times of 6; asked to scroll down, the page moved 4 times and was already at its end twice, which Stand said ("The page is already as far down as it goes").
+- **Two faults on the way, both of the kind the user feared.** A request to scroll and a move with the voice reached the page at the same instant, the page went nowhere, and Stand said it was at the top. The page now belongs to whoever asked from the moment they ask. And a gentle scroll in a window that is not on the display once did not arrive: the look caught it, and such a scroll is now finished at once.
+- **Checked again after it:** the north-star script (8 sections of 8), the screen's test twice, and the talk about the user's project (6 of 6), all as before.
+- **Not known:** whether a page that moves while Stand speaks helps a listener or distracts them. That is for a person's eyes.
+
+About $1.70 more: 7 runs of the scrolling test and 4 of the others.
+
+**That evening, polishing, with the user away for two hours** ("you can build some polishing for the goal in the meanwhile, when I come back I will do the uat"). Nothing new in kind: the things a person would trip over in the first five minutes.
+
+- **Before the meeting:** the panel says when the chosen talk shows pages, and **Open it** puts the window up with the first page, to place and share before Stand says a word. Starting the talk uses that window. A page that is not there (no such document, no such heading) is told there too, in orange, and by `--probe prepare`; nothing is asked.
+- **The window:** it opens where it was last put, does not follow a link someone clicks, loads itself afresh once before calling a page a failure, and comes back at the next page if it was closed.
+- **Asked what a page says,** Stand looks it up in the document, which is one of its notes: "Let me check that for you. It says the screen window is one thousand two hundred eighty points wide." 3 runs of 3, the brain's answer in under a second.
+- **Where a point is on the page** is now found by the words that say something, weighed by how rare they are on that page. And a fault that only showed once that was done: an opening line ("say who you are… with a few pages on the screen") shared four real words with a row of a table far down the page, and the page left its title a second into the talk, in 2 runs of 2. The first point of a section now has no place of its own: it is made under the heading.
+- **To watch one:** `--show-screen --hear` plays both sides of a rehearsal through the speakers, and `poc/heckler/screen-any.json` is a scripted audience for any talk with pages. Played at no volume only: nobody was there to listen.
+- **Measured:** the pause between sections is 1.2 seconds at the median with pages and 0.9 without; after a page someone asked for, 3.9.
+- **Checked at the end, four runs:** the scrolling test twice (3 sections of 3; the page moved with the voice 4 times, none failed; "back to the top" twice; "scroll down" once, and once truthfully "already at the end of the page"), the any-talk script with the third page made to fail (5 of 5; "That page isn't coming up, so I'll just tell you"; the previous page and the first page both right), and the screen's test read from pictures (5 of 5, seven pages).
+- **Seen in that check, and changed:** after someone's scroll in the middle of a section, the page went back to the top of the section's part and caught up with the voice in two moves over eight seconds. Now, when the rest of a section is handed back, the page goes at once to the first point handed back. Four runs with the request moved into the middle of the section (the test now asks at 27 seconds of speech, not 38, where it had mostly landed at the section's end): the page was at the talk's place 0.8 seconds after the hand-back each time, and Stand began to speak 0.7 to 1.1 seconds after it.
+- **Seen and left:** a page asked for during the last section stays up while Stand invites questions, which is what a person presenting would do.
+- **Checked again:** the scrolling test seven more times, three at the old timing, three at the new and one with the app as built (3 sections of 3 each time; the page moved with the voice 18 times and none failed), the screen's test (5 of 5, no move in the opening, and the third look-up of what a page says), and the north-star script (8 of 8). Just before that change, the talk about the user's project with the any-talk script, through the built app and their own settings: 6 of 6, eight pages, both requests right, one move with the voice.
+- **Still not known:** everything a person's eyes and ears would say. That is the next step, and it is the user's.
+
+The credit ran out once on the way, with Stand's own count at $58.78 of the $60 put in: what the count does not see (voice samples, the listening model) had caught up with it. The user added $20 within minutes. In all for the evening $2.23 over fifteen runs.
 
 ### Status (2026-11-14, a first version to download)
 
