@@ -60,6 +60,22 @@ The sections below are points to make, in order. They are not a script.
 - Each one stands alone and is exact. Stand will say it as it is written.
 - End the list with one line beginning "Not in the notes or the code:" that names the things people may well ask about which you looked for and could not find. Stand will say that it does not have them.
 
+# Pages to show
+
+If the lines about the meeting ask for the talk to be given with pages on a screen ("show the documents", "walk them through the pages", "with the wiki up"), give each section the page it is about, on a line of its own directly under the section's heading:
+
+Show: <the document, named as the notes name it> # <the heading in it that the section is about>
+
+- The document is named exactly as the notes name it, the folder's name first: handbook/architecture.md. An address works too, when the lines about the meeting give one.
+- A note whose first line begins "Address:" is the copy of a page that Stand's human reads in their browser. Show that page by the address on that line, never by the note's name: Show: https://wiki.example.com/billing # How a refund is recorded. The headings in the copy are the page's own.
+- The heading is copied exactly from the document, without its # marks. Leave the # and the heading out to show a document from its start. With an address, always give a heading: it is how the screen knows that the right page came up, and not a sign-in page in its place.
+- One page for a section. Stand cannot scroll or point while it speaks: the page is put up before the section and stays there until the next one. So choose the heading whose first screenful says what the section says, and cut the sections where the document's own headings fall.
+- Give the opening a page as well, the start of the main document, so that the screen is not empty when the talk begins. Any other section may go without a page when nothing fits: the last page then stays up.
+- Only documents, never code, and never a page you have not read.
+- The points still carry everything Stand says. The page is for the audience's eyes. Stand cannot see it, so never write a point that leans on it ("as you can see here").
+
+If the lines about the meeting do not ask for pages, write no "Show:" lines.
+
 # What never goes in
 
 - A key, a password, a token, or anything else that works as one, even if you come across it.

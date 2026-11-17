@@ -4,6 +4,11 @@ Stand is the voice in the meeting. Noteling is the hands and eyes on the Mac. Th
 
 Written 2026-11-11 against Noteling 0.10.4.
 
+**2026-11-14, read this first.** Three days on, Stand shows pages while it talks, and it does so with neither app's hands: the pages go up in a window of Stand's own, which its human shares (README, "A talk with its pages on the screen"). That needed no permission beyond the two Stand has, and nothing below was built for it. Two things about what follows have changed in that time:
+
+- **Calling Noteling may be the wrong way round.** The user asked whether it makes sense to invoke Noteling at all, or rather to copy what it has. What I told them: copy, and only the thin slice Stand needs. Nothing fast exists in Noteling to call (the commands proposed below were never built); a command-line call would probably not carry Noteling's permissions, because macOS charges a child process's screen and accessibility access to the app that started it (likely, not verified, and it fits the failed try noted below); and every Stand user would need a second app. The cost of copying is that Stand would itself ask for Accessibility and Screen Recording, which the split below says it never does. That is undecided, and the user's to decide.
+- **The rule that matters more than the split:** whatever hand Stand gets does a short list of named acts that Stand's own code chooses, in an order one part keeps. It never clicks freely on the strength of what someone in the meeting said, and it never moves while Stand is in the middle of a sentence.
+
 ## The split
 
 | | Stand | Noteling |

@@ -1,0 +1,226 @@
+# Sounds for the ear, each with what it should be taken for: `Stand --probe ear --sounds poc/heckler/ear/sounds.txt --listen`.
+# CALL: someone is calling for the speaker. NOTHING: anything else. A line is the answer, then
+# `say <voice> <words>` (made with the Mac's voices, without a sound) or
+# `clip <wav> <from> <to> <what it is>` (a stretch of a kept recording, by the recording's own clock).
+#
+# The recorded ones are a person's own tries to stop Stand on 2026-11-15, five of which passed as short sounds,
+# and what passed rightly on 2026-11-13: a laugh, and a remark to the other person in the room. Recordings are
+# never published, so those lines are left out on any other Mac. Each is framed as the marker hands a sound
+# over: from a little before its first loud moment to a quarter of a second after its last.
+#
+# The Mac's voices are a rough stand-in: their words are right and their tone is a machine's.
+
+CALL clip runs/2026-11-15T18-43-13-gemini-app/room.wav 56.84 57.55 hey
+CALL clip runs/2026-11-15T18-43-13-gemini-app/room.wav 58.12 58.77 the start of excuse me
+CALL clip runs/2026-11-15T18-43-13-gemini-app/room.wav 58.92 59.77 excuse me
+CALL clip runs/2026-11-15T18-43-13-gemini-app/room.wav 58.12 59.77 excuse me, twice over
+CALL clip runs/2026-11-15T18-43-13-gemini-app/room.wav 60.98 61.85 excuse me
+CALL clip runs/2026-11-15T18-43-13-gemini-app/room.wav 62.64 63.43 hello
+CALL clip runs/2026-11-15T18-43-13-gemini-app/room.wav 64.52 65.21 hello
+CALL clip runs/2026-11-15T18-43-13-gemini-app/room.wav 65.54 66.25 hello
+NOTHING clip runs/2026-11-15T18-43-13-gemini-app/room.wav 57.40 58.20 a snicker
+NOTHING clip runs/2026-11-13T16-20-06-gemini-app/room.wav 30.80 32.31 a laugh
+NOTHING clip runs/2026-11-13T16-20-06-gemini-app/room.wav 30.80 33.93 a laugh, and quiet words to the other person after it
+NOTHING clip runs/2026-11-13T16-20-06-gemini-app/room.wav 32.40 33.93 quiet words to the other person
+NOTHING clip runs/2026-11-13T16-20-06-gemini-app/room.wav 34.46 36.19 you go ahead, said to the other person
+NOTHING clip runs/2026-11-13T16-20-06-gemini-app/room.wav 37.24 37.99 a scrap of talk between the two
+
+CALL say Samantha Excuse me?
+CALL say Daniel Excuse me?
+CALL say Karen Excuse me?
+CALL say Samantha Hello?
+CALL say Daniel Hello?
+CALL say Karen Hello?
+CALL say Samantha Sorry?
+CALL say Daniel Sorry?
+CALL say Karen Sorry?
+CALL say Samantha Wait.
+CALL say Daniel Wait.
+CALL say Karen Wait.
+CALL say Samantha Hold on.
+CALL say Daniel Hold on.
+CALL say Karen Hold on.
+CALL say Samantha One question.
+CALL say Daniel One question.
+CALL say Karen One question.
+CALL say Samantha Stand?
+CALL say Daniel Stand?
+CALL say Karen Stand?
+CALL say Samantha Hey, Stand.
+CALL say Daniel Hey, Stand.
+CALL say Karen Hey, Stand.
+CALL say Samantha Quick question.
+CALL say Daniel Quick question.
+CALL say Karen Quick question.
+CALL say Samantha Um, excuse me.
+CALL say Daniel Um, excuse me.
+CALL say Karen Um, excuse me.
+CALL say Samantha Hey.
+CALL say Daniel Hey.
+CALL say Karen Hey.
+CALL say Samantha Hello? Hello?
+CALL say Daniel Hello? Hello?
+CALL say Karen Hello? Hello?
+CALL say Samantha Sorry to interrupt.
+CALL say Daniel Sorry to interrupt.
+CALL say Karen Sorry to interrupt.
+CALL say Samantha Wait a second.
+CALL say Daniel Wait a second.
+CALL say Karen Wait a second.
+CALL say Samantha Pause, please.
+CALL say Daniel Pause, please.
+CALL say Karen Pause, please.
+CALL say Samantha Stand, wait.
+CALL say Daniel Stand, wait.
+CALL say Karen Stand, wait.
+CALL say Samantha Question!
+CALL say Daniel Question!
+CALL say Karen Question!
+CALL say Samantha I have a question.
+CALL say Daniel I have a question.
+CALL say Karen I have a question.
+CALL say Samantha Can you hear me?
+CALL say Daniel Can you hear me?
+CALL say Karen Can you hear me?
+CALL say Samantha Hang on.
+CALL say Daniel Hang on.
+CALL say Karen Hang on.
+CALL say Samantha Hold on a second.
+CALL say Daniel Hold on a second.
+CALL say Karen Hold on a second.
+CALL say Samantha Sorry, Stand?
+CALL say Daniel Sorry, Stand?
+CALL say Karen Sorry, Stand?
+CALL say Samantha Excuse me, Stand.
+CALL say Daniel Excuse me, Stand.
+CALL say Karen Excuse me, Stand.
+CALL say Samantha Can you go back?
+CALL say Daniel Can you go back?
+CALL say Karen Can you go back?
+CALL say Samantha Go back.
+CALL say Daniel Go back.
+CALL say Karen Go back.
+CALL say Samantha Say that again?
+CALL say Daniel Say that again?
+CALL say Karen Say that again?
+CALL say Samantha Slow down.
+CALL say Daniel Slow down.
+CALL say Karen Slow down.
+CALL say Samantha Louder, please.
+CALL say Daniel Louder, please.
+CALL say Karen Louder, please.
+CALL say Samantha Could you repeat that?
+CALL say Daniel Could you repeat that?
+CALL say Karen Could you repeat that?
+CALL say Samantha What does that mean?
+CALL say Daniel What does that mean?
+CALL say Karen What does that mean?
+
+NOTHING say Samantha Yeah.
+NOTHING say Daniel Yeah.
+NOTHING say Karen Yeah.
+NOTHING say Samantha Right.
+NOTHING say Daniel Right.
+NOTHING say Karen Right.
+NOTHING say Samantha Mm-hm.
+NOTHING say Daniel Mm-hm.
+NOTHING say Karen Mm-hm.
+NOTHING say Samantha Okay.
+NOTHING say Daniel Okay.
+NOTHING say Karen Okay.
+NOTHING say Samantha Uh-huh.
+NOTHING say Daniel Uh-huh.
+NOTHING say Karen Uh-huh.
+NOTHING say Samantha Nice.
+NOTHING say Daniel Nice.
+NOTHING say Karen Nice.
+NOTHING say Samantha Wow.
+NOTHING say Daniel Wow.
+NOTHING say Karen Wow.
+NOTHING say Samantha Exactly.
+NOTHING say Daniel Exactly.
+NOTHING say Karen Exactly.
+NOTHING say Samantha I see.
+NOTHING say Daniel I see.
+NOTHING say Karen I see.
+NOTHING say Samantha Sure.
+NOTHING say Daniel Sure.
+NOTHING say Karen Sure.
+NOTHING say Samantha That's cool.
+NOTHING say Daniel That's cool.
+NOTHING say Karen That's cool.
+NOTHING say Samantha Interesting.
+NOTHING say Daniel Interesting.
+NOTHING say Karen Interesting.
+NOTHING say Samantha Oh, nice.
+NOTHING say Daniel Oh, nice.
+NOTHING say Karen Oh, nice.
+NOTHING say Samantha Makes sense.
+NOTHING say Daniel Makes sense.
+NOTHING say Karen Makes sense.
+NOTHING say Samantha Got it.
+NOTHING say Daniel Got it.
+NOTHING say Karen Got it.
+NOTHING say Samantha Thanks.
+NOTHING say Daniel Thanks.
+NOTHING say Karen Thanks.
+NOTHING say Samantha Hm.
+NOTHING say Daniel Hm.
+NOTHING say Karen Hm.
+NOTHING say Samantha Huh.
+NOTHING say Daniel Huh.
+NOTHING say Karen Huh.
+NOTHING say Samantha Ha ha.
+NOTHING say Daniel Ha ha.
+NOTHING say Karen Ha ha.
+NOTHING say Samantha Cool.
+NOTHING say Daniel Cool.
+NOTHING say Karen Cool.
+NOTHING say Samantha Oh my god.
+NOTHING say Daniel Oh my god.
+NOTHING say Karen Oh my god.
+NOTHING say Samantha Same here.
+NOTHING say Daniel Same here.
+NOTHING say Karen Same here.
+NOTHING say Samantha After you.
+NOTHING say Daniel After you.
+NOTHING say Karen After you.
+NOTHING say Samantha No, you first.
+NOTHING say Daniel No, you first.
+NOTHING say Karen No, you first.
+NOTHING say Samantha Did you see that?
+NOTHING say Daniel Did you see that?
+NOTHING say Karen Did you see that?
+NOTHING say Samantha I told you.
+NOTHING say Daniel I told you.
+NOTHING say Karen I told you.
+NOTHING say Samantha Pass me that.
+NOTHING say Daniel Pass me that.
+NOTHING say Karen Pass me that.
+NOTHING say Samantha Bless you.
+NOTHING say Daniel Bless you.
+NOTHING say Karen Bless you.
+NOTHING say Samantha What time is it?
+NOTHING say Daniel What time is it?
+NOTHING say Karen What time is it?
+NOTHING say Samantha Are you coming?
+NOTHING say Daniel Are you coming?
+NOTHING say Karen Are you coming?
+NOTHING say Samantha Look at this.
+NOTHING say Daniel Look at this.
+NOTHING say Karen Look at this.
+NOTHING say Samantha Move over.
+NOTHING say Daniel Move over.
+NOTHING say Karen Move over.
+NOTHING say Samantha Not now.
+NOTHING say Daniel Not now.
+NOTHING say Karen Not now.
+NOTHING say Samantha Come here.
+NOTHING say Daniel Come here.
+NOTHING say Karen Come here.
+NOTHING say Samantha Is that yours?
+NOTHING say Daniel Is that yours?
+NOTHING say Karen Is that yours?
+NOTHING say Samantha Told you so.
+NOTHING say Daniel Told you so.
+NOTHING say Karen Told you so.

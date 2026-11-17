@@ -17,11 +17,13 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.1.0</string>
+	<string>0.2.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.2</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Stand shows a talk's pages in a window it opens in your browser, and moves them as it speaks.</string>
 	<key>NSAudioCaptureUsageDescription</key>
 	<string>Stand listens to the audio your Mac is playing so it can hear the other people in your call.</string>
 	<key>NSHumanReadableCopyright</key>

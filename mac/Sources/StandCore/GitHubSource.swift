@@ -564,7 +564,7 @@ public enum LinkedRepos {
         }
     }
 
-    static func ago(_ date: Date, now: Date) -> String {
+    public static func ago(_ date: Date, now: Date) -> String {
         let seconds = max(0, now.timeIntervalSince(date))
         switch seconds {
         case ..<60: return "just now"

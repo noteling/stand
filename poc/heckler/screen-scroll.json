@@ -1,0 +1,32 @@
+{
+  "description": "The scrolling test. Stand gives a short talk whose middle section is longer than a screenful of its page, so the page has to move down with the voice. In the middle of that section someone asks to scroll back up, so that the rest of the section is handed back and the page has to return to the talk's place; after the talk someone asks to scroll down. Run it with --screen. Lines are timed by how long Stand has spoken.",
+  "during": [
+    {
+      "label": "asks to scroll back up",
+      "kind": "question",
+      "afterSpeechSeconds": 27,
+      "voice": "Samantha",
+      "say": "Sorry, can you scroll back up to the top for a second?"
+    }
+  ],
+  "after": [
+    {
+      "label": "asks to scroll down",
+      "voice": "Daniel",
+      "say": "Could you scroll down a bit?"
+    },
+    {
+      "label": "closing question",
+      "voice": "Samantha",
+      "say": "And is a cough enough to stop you?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "Thanks, that's all the questions we have."
+  },
+  "talkIsAtLeastSpeechSeconds": 55,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 8
+}

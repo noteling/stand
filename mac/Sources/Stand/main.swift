@@ -15,6 +15,24 @@ setvbuf(stdout, nil, _IOLBF, 0)
 // The brain is such a program: one that is kept open and written to.
 signal(SIGPIPE, SIG_IGN)
 
+/// A command-line run that puts up a window (the screen a talk's pages are shown on) needs
+/// the app's own run loop on the main thread, as the app has. Every other run parks the
+/// main thread and never touches the window server.
+let needsWindows = arguments.contains("--screen") || arguments.contains("--show-screen") || arguments.contains("--in-chrome")
+    || (arguments.count >= 2 && arguments[0] == "--probe" && (arguments[1] == "screen" || arguments[1] == "page"))
+    || arguments.contains("--add-page") || arguments.contains("--read-pages") || arguments.contains("--as-the-panel-adds")
+func keepMainThread() -> Never {
+    if needsWindows {
+        MainActor.assumeIsolated {
+            let app = NSApplication.shared
+            app.setActivationPolicy(.accessory)
+            app.run()
+        }
+        exit(0)
+    }
+    dispatchMain()
+}
+
 if arguments.count >= 2, arguments[0] == "--probe", arguments[1] == "panel" {
     // The real window, driven with nobody at the keyboard. It is on screen for about three seconds.
     MainActor.assumeIsolated {
@@ -41,7 +59,7 @@ if arguments.count >= 2, arguments[0] == "--probe", arguments[1] == "panel" {
             exit(1)
         }
     }
-    dispatchMain()
+    keepMainThread()
 } else if let flag = arguments.firstIndex(of: "--rehearse") {
     let script = arguments.indices.contains(flag + 1) && !arguments[flag + 1].hasPrefix("--") ? arguments[flag + 1] : nil
     Task {
@@ -53,7 +71,7 @@ if arguments.count >= 2, arguments[0] == "--probe", arguments[1] == "panel" {
             exit(1)
         }
     }
-    dispatchMain()
+    keepMainThread()
 } else if let flag = arguments.firstIndex(of: "--render-panel"), arguments.indices.contains(flag + 1) {
     MainActor.assumeIsolated {
         do {

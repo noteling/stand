@@ -25,8 +25,15 @@ public struct SpeechMarker {
         /// They have stopped.
         case stopped(at: Double)
         /// Someone made a sound while Stand was speaking, and it was over before it came
-        /// to anything: a cough, an "mm-hm", a short laugh. Nobody was told.
-        case passedOver(from: Double, to: Double, loud: Double)
+        /// to anything: a cough, an "mm-hm", a short laugh. Nobody was told. `from` is its
+        /// first loud moment and `to` its last.
+        case passedOver(id: Int, from: Double, to: Double, loud: Double)
+        /// A sound made while Stand was speaking has gone quiet without having come to
+        /// enough to count as someone speaking. It is still being weighed: more of it may
+        /// follow. This is all of it so far, with the quiet before it, for something that
+        /// can tell what it was (`Ear`). `id` is the same for every part of one sound, and
+        /// for the `passedOver` that lets it go.
+        case weighed(id: Int, sound: Data, from: Double, to: Double, loud: Double)
     }
 
     /// Sound has to be louder than this, out of 32768, to count at all.
@@ -39,6 +46,10 @@ public struct SpeechMarker {
     /// 2026-11-13 Stand stopped for anything, a fifth of a second in. The sound is kept
     /// meanwhile, so nothing of what is said is lost. 0 means at once.
     public var cutsInAfter = 0.0
+    /// A sound that is being weighed is offered (`weighed`) once it has been quiet for
+    /// this long: long enough that a word is over, far short of the quiet that lets the
+    /// sound go. 0, as it is unless the session has an ear, offers nothing.
+    public var offersAfter = 0.0
     /// A sound that has not come to that much after this long is let go.
     static let waitsAtMost = 4.0
     /// True between `started` and `stopped`.
@@ -59,7 +70,10 @@ public struct SpeechMarker {
     private var clearlyLoudLately = [Bool]() // the same, for one and a half times the bar
     /// A sound that began while Stand was speaking and has not yet come to enough: when it
     /// began, how many of its frames were loud, and all of it so far with the quiet before it.
-    private var waiting: (since: Double, loud: Int, frames: [Data])?
+    /// `began` is when its first loud moment was, a little before the weighing started.
+    /// `offered`: how many of its frames were loud when it was last offered (`weighed`).
+    private var waiting: (id: Int, since: Double, began: Double, loud: Int, frames: [Data], offered: Int)?
+    private var sounds = 0 // how many sounds have been weighed
 
     public init(level: Double = 500, endsAfter: Double = 0.7) {
         self.level = level
@@ -86,6 +100,18 @@ public struct SpeechMarker {
 
     /// Ends the utterance now, without waiting out the quiet. For when the room has gone
     /// silent and something else needs the model's attention. False if none was open.
+    /// The sound being weighed is someone speaking after all: something that understood
+    /// it has said so, before enough of it was loud. The utterance is opened from here,
+    /// and what was kept of the sound is returned with its `id`, to be sent ahead of the
+    /// rest. Nil when no sound is being weighed, or an utterance is open already.
+    public mutating func call() -> (id: Int, sound: Data)? {
+        guard !isOpen, let held = waiting else { return nil }
+        waiting = nil
+        isOpen = true
+        leadIn.removeAll()
+        return (held.id, held.frames.reduce(into: Data()) { $0.append($1) })
+    }
+
     public mutating func stop() -> Bool {
         waiting = nil
         guard isOpen else { return false }
@@ -152,18 +178,27 @@ public struct SpeechMarker {
                 } else if t - lastLoud > endsAfter || t - held.since > Self.waitsAtMost {
                     // It stopped, or dragged on without ever amounting to speech: let it go.
                     waiting = nil
-                    events.append(.passedOver(from: held.since, to: lastLoud, loud: loudFor))
+                    events.append(.passedOver(id: held.id, from: held.began, to: lastLoud, loud: loudFor))
                     leadIn = Array(held.frames.suffix(Self.leadInFrames - 1))
                     loudLately.removeAll()
                     clearlyLoudLately.removeAll()
                 } else {
                     held.frames.append(frame)
+                    // Quiet for a moment, and louder than when it was last offered: what there is of it is offered.
+                    if offersAfter > 0, !isLoud, t - lastLoud >= offersAfter, held.loud > held.offered {
+                        held.offered = held.loud
+                        events.append(.weighed(id: held.id, sound: held.frames.reduce(into: Data()) { $0.append($1) },
+                                               from: held.began, to: lastLoud, loud: loudFor))
+                    }
                     waiting = held
                 }
             } else if starts {
                 if cutsInAfter > 0, standAudible(t) {
                     // Kept from here on with the quiet before it, this frame included.
-                    waiting = (t, loud, leadIn + [frame])
+                    sounds += 1
+                    // The sound began with the first loud frame of the last ten, not with the one that settled it.
+                    let before = loudLately.count - 1 - (loudLately.firstIndex(of: true) ?? loudLately.count - 1)
+                    waiting = (sounds, t, t - Double(before) * Self.frameSeconds, loud, leadIn + [frame], 0)
                     leadIn.removeAll()
                 } else {
                     isOpen = true

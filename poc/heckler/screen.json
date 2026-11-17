@@ -1,0 +1,44 @@
+{
+  "description": "The screen's test. Stand gives a two-minute talk with a page up for each section. One person cuts in with a question about what is on the page, one asks to go back to the page before, and at the end one asks for an earlier page again and then for something only that page says. Run it with --screen, and with --screen-fails 3 to see what Stand says when a page does not come up. Lines are timed by how long Stand has spoken.",
+  "during": [
+    {
+      "label": "question about the page",
+      "kind": "question",
+      "afterSpeechSeconds": 30,
+      "voice": "Samantha",
+      "say": "Sorry, quick question. Which of those four parts decides when the page changes?"
+    },
+    {
+      "label": "asks for the page before",
+      "kind": "question",
+      "afterSpeechSeconds": 62,
+      "voice": "Daniel",
+      "say": "Sorry, can you go back to the previous page for a second?"
+    }
+  ],
+  "after": [
+    {
+      "label": "asks for an earlier page",
+      "voice": "Samantha",
+      "say": "Could you put the page with the four parts back up?"
+    },
+    {
+      "label": "asks what the page says",
+      "voice": "Daniel",
+      "say": "How wide does that page say the screen's window is?"
+    },
+    {
+      "label": "closing question",
+      "voice": "Daniel",
+      "say": "And what does an hour of it cost, roughly?"
+    }
+  ],
+  "goodbye": {
+    "label": "goodbye",
+    "voice": "Daniel",
+    "say": "Thanks, that's all the questions we have."
+  },
+  "talkIsAtLeastSpeechSeconds": 60,
+  "talkEndsAfterQuietSeconds": 12,
+  "maxMinutes": 8
+}

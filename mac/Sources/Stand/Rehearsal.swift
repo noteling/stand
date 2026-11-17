@@ -31,6 +31,10 @@ enum Rehearsal {
             var kind: String?
             var afterSpeechSeconds: Double?
             var atSeconds: Double?
+            /// In a talk: a follow-up to the line before, said once Stand has answered that
+            /// one and then been quiet for this long. It is how a person says "thanks, go
+            /// on", or comes back after asking Stand to wait: into a silence, not over Stand.
+            var afterQuietSeconds: Double?
             var voice: String?
             var say: String
             var howlSeconds: Double?
@@ -137,7 +141,11 @@ enum Rehearsal {
 
         // Prepare every line's audio before connecting, so the session clock is not spent on it.
         let when: (Script.Item) -> Double = { $0.afterSpeechSeconds ?? $0.atSeconds ?? 0 }
-        let during = try (script.during ?? []).sorted { when($0) < when($1) }.map(prepare)
+        // In the order they come due. A follow-up (`afterQuietSeconds`) stays behind the line it follows.
+        var dueAt = [Double]()
+        for item in script.during ?? [] { dueAt.append(item.afterQuietSeconds == nil ? when(item) : dueAt.last ?? 0) }
+        let during = try zip(script.during ?? [], dueAt).enumerated().sorted { ($0.element.1, $0.offset) < ($1.element.1, $1.offset) }
+            .map { try prepare($0.element.0) }
         let after = try (script.after ?? []).map(prepare)
         let goodbye = try script.goodbye.map(prepare)
         let discussion = try script.discussion.map { try $0.map(prepare) }
@@ -168,6 +176,13 @@ enum Rehearsal {
         if let tokens = value("--context-keeps").flatMap({ Int($0) }) { settings.contextKeeps = tokens }
         // --no-prompter: no second brain follows the meeting, to see what Stand does and forgets without it.
         if arguments.contains("--no-prompter") { settings.hasPrompter = false }
+        // --no-watch: no brain keeps watch over the talk, to see what happens without it.
+        // --watch-every 3: how often it is asked while nothing else prompts it.
+        if arguments.contains("--no-watch") { settings.hasWatch = false }
+        // --no-ear: a talk without the ear for short sounds (`Ear`), to compare. A sound then
+        // stops Stand only once 0.6 seconds of it has been loud.
+        if arguments.contains("--no-ear") { settings.hasEar = false }
+        if let every = value("--watch-every").flatMap({ Double($0) }) { settings.watchEvery = every }
         if arguments.contains("--whole-talk") { settings.handsSections = false }
         // --voice Puck: whose voice Stand speaks with (prompts/voices-gemini.txt). Kore unless said.
         if let name = value("--voice") { settings.voice = name }
@@ -176,6 +191,24 @@ enum Rehearsal {
         settings.answerAsks = script.answerAsks
         settings.canAskHuman = script.human != nil
         let session = StandSession(root: root, label: outLoud ? "rehearsal-out-loud" : "rehearsal", settings: settings)
+        // --screen: the pages the talk names go up in a window of Stand's own. It is kept
+        // off the display unless --show-screen puts it there to be watched. --eye picture
+        // looks at the window by reading a picture of it, as any other screen would have to
+        // be looked at. --screen-fails 2,4: the second and the fourth page asked for do not come up.
+        // --in-chrome (or STAND_SCREEN=chrome): the pages go up in a window Stand opens in
+        // the person's own Chrome instead, which is on the display whatever else is said.
+        var pageScreen: PageScreen?
+        if arguments.contains("--screen") || arguments.contains("--show-screen") || arguments.contains("--in-chrome") {
+            let eye = PageScreen.Eye(rawValue: value("--eye") ?? "page") ?? .page
+            let visible = arguments.contains("--show-screen")
+            let place: PageScreen.Where = arguments.contains("--in-chrome") ? .browser : PageScreen.Where.told ?? .window
+            let made = await MainActor.run { PageScreen(root: root, visible: visible, eye: eye, in: place) }
+            pageScreen = made
+            let failing = Set((value("--screen-fails") ?? "").split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) })
+            session.screen = failing.isEmpty ? made : FaultyScreen(made, failing: failing)
+        }
+        // Closed before this run ends, and waited for: a window in someone's browser would otherwise outlive the rehearsal.
+        defer { if let pageScreen { pageScreen.closeAndWait() } }
         let audio = outLoud ? AudioIO() : nil
         if let audio {
             guard await AudioIO.microphoneAllowed() else {
@@ -207,6 +240,9 @@ enum Rehearsal {
                 }
             case .humanAnswered(_, let answer): stamp("its human answers: \(answer.map { "\"\($0)\"" } ?? "no answer")")
             case .prompted(_, let cue): if let cue { stamp("the prompter thinks this worth saying: \"\(cue)\"") }
+            case .screen(let shown, let what): stamp(what.hasPrefix("for section") ? (shown ? "the screen changed " : "the screen did NOT change ") + what : "the page " + what)
+            case .watched(let what): stamp("the watch: \(what)")
+            case .earHeard(let what): stamp("the ear: \(what)")
             case .error(let message): stamp("error: \(message)")
             case .closed(let reason, _): stamp("session closed: \(reason)")
             default: break
@@ -231,6 +267,23 @@ enum Rehearsal {
         if !outLoud, room.echo > 0 {
             session.onSpeech = { [weak room] pcm in room?.standSaid(pcm) }
             session.onFlush = { [weak room] in room?.standStopped() }
+        }
+        // --hear: a person can listen to this rehearsal, and with --show-screen watch it.
+        // Stand's voice and the audience's lines come out of the speakers. The microphone is
+        // not used, so nothing in the room gets in, and nothing Stand says comes back to it.
+        // --hear 0 does the same without a sound, to check it with nobody there.
+        var listener: Listener?
+        if !outLoud, room.echo == 0, arguments.contains("--hear") {
+            let made = Listener(volume: value("--hear").flatMap { Float($0) } ?? 1)
+            listener = made
+            session.onSpeech = { pcm in made.stand(pcm) }
+            session.onFlush = { made.standStopped() }
+        }
+        defer {
+            if let listener {
+                print(String(format: "Through the speakers at volume %g: %.0f s of Stand's voice and %.0f s of the audience's.", listener.volume, listener.standSeconds, listener.audienceSeconds))
+                listener.stop()
+            }
         }
         let pump = outLoud ? nil : Task.detached {
             let chunkBytes = Int(rate * chunkSeconds) * 2
@@ -257,6 +310,7 @@ enum Rehearsal {
                     session.tell(note)
                 }
             }
+            listener?.audience(line.pcm)
             if outLoud { await playOutLoud(line.pcm) } else { await room.speak(line.pcm) }
             u.end = session.now
             utterances.append(u)
@@ -302,7 +356,8 @@ enum Rehearsal {
             if session.floorOpen, quietFor > 2 { return "Stand signalled that the floor is open" }
             let lastLine = session.lines.last { $0.who == .stand }
             let invited = (lastLine?.text.suffix(200).lowercased().contains("question") ?? false) && session.spokenSeconds >= minTalkSpeech
-            if invited, quietFor > 3 { return "Stand invited questions" }
+            // With sections still to hand over, the talk is not over, whatever Stand's last sentence was about.
+            if invited, quietFor > 3, session.sectionsToGive == 0 { return "Stand invited questions" }
             if quietFor > quietEndsTalk { return "Stand went quiet" }
             return nil
         }
@@ -380,6 +435,16 @@ enum Rehearsal {
         // interrupt are asked with the closing questions instead, so they are still tested.
         var missed = [Line]()
         for (i, line) in during.enumerated() {
+            if let quiet = line.item.afterQuietSeconds {
+                _ = await until(60) {
+                    session.closed || (!session.isStandSpeaking && session.now - session.speechRunsOutAt >= quiet && !waitingOnLookUp())
+                }
+                if session.closed || session.now >= maxSeconds { break }
+                let u = await utter(line, kind: line.item.kind ?? "follow-up")
+                // Give Stand room to answer or to go on, as the person who said it would.
+                _ = await until(8) { session.closed || standStarted(after: u.end) }
+                continue
+            }
             _ = await until(maxSeconds - session.now) { session.closed || isDue(line) || talkOver() != nil }
             if session.closed || session.now >= maxSeconds { break }
             if !isDue(line) {
@@ -393,6 +458,9 @@ enum Rehearsal {
             }
             _ = await until(15) { session.closed || session.isStandSpeaking } // talk over Stand, as a real interruption would
             let u = await utter(line, kind: line.item.kind ?? "question")
+            // In a talk a line may say what should become of it: "stops" when Stand should
+            // stop for it, "passes" when Stand should talk on.
+            u.expect = line.item.expect
             // Let Stand begin its reply before anything else happens. A noise needs no reply.
             if u.kind != "noise" { _ = await until(15) { session.closed || standStarted(after: u.end) } }
         }
@@ -441,6 +509,51 @@ enum Rehearsal {
     // MARK: The audience's voice
 
     /// What the audience is saying right now, handed out in real-time chunks.
+    /// For a person listening to a rehearsal: two players, one for Stand's voice and one
+    /// for the audience's lines. Output only.
+    final class Listener: @unchecked Sendable {
+        let volume: Float
+        private let standPlayer: SpeechPlayer
+        private let audiencePlayer: SpeechPlayer
+        private let lock = NSLock()
+        private var stretch: Int
+        private(set) var standSeconds = 0.0
+        private(set) var audienceSeconds = 0.0
+
+        init(volume: Float) {
+            self.volume = volume
+            standPlayer = SpeechPlayer(volume: volume)
+            audiencePlayer = SpeechPlayer(volume: volume)
+            stretch = standPlayer.begin()
+        }
+
+        func stand(_ pcm: Data) {
+            let now = lock.withLock { () -> Int in
+                standSeconds += PCM.seconds(pcm, rate: GeminiLive.speechRate)
+                return stretch
+            }
+            standPlayer.play(pcm, of: now)
+        }
+
+        /// Someone cut in: what Stand had ready and had not said is dropped, as in a meeting.
+        func standStopped() {
+            let next = standPlayer.begin()
+            lock.withLock { stretch = next }
+        }
+
+        /// One line of the audience's, as it was made for the session: 16 kHz.
+        func audience(_ pcm: Data) {
+            let line = PCM.data(PCM.resample(PCM.samples(pcm), from: Rehearsal.rate, to: GeminiLive.speechRate))
+            lock.withLock { audienceSeconds += PCM.seconds(line, rate: GeminiLive.speechRate) }
+            audiencePlayer.play(line, of: audiencePlayer.begin())
+        }
+
+        func stop() {
+            standPlayer.stop()
+            audiencePlayer.stop()
+        }
+    }
+
     final class Room {
         var noise = 0.0
         var echo = 0.0
@@ -694,6 +807,11 @@ enum Rehearsal {
                 let cut = log.first { $0.type == "interrupted" && $0.t >= u.start && $0.t <= u.end + 3 }?.t
                 let ranOut = log.first { $0.type == "stand_stop" && ($0.at ?? -1) >= u.start - 0.05 && ($0.at ?? -1) <= u.end + 3 }?.at
                 u.stoppedAfter = (cut ?? ranOut).map { max(0, $0 - u.start) }
+                // Judged on being stopped for it, not on its speech running out by itself just
+                // then. A call the ear heard as Stand's speech ran out stops nothing, and counts.
+                let called = log.contains { $0.type == "ear_call" && $0.t >= u.start && $0.t <= u.end + 4 }
+                if u.expect == "stops" { u.asExpected = cut != nil || called }
+                if u.expect == "passes" { u.asExpected = cut == nil && !called }
             }
             if u.kind != "note", !u.standWasSpeaking || u.stoppedAfter != nil {
                 u.repliedAfter = log.first { $0.type == "stand_start" && $0.t >= u.end - 0.3 }.map { max(0, $0.t - u.end) }
@@ -715,18 +833,103 @@ enum Rehearsal {
             (s["sections"] as? Int ?? 0) > 0 ? "The talk was handed to Stand a section at a time: \(s["sectionsGiven"] ?? 0) of its \(s["sections"] ?? 0) sections were handed over. In the sections it gave unstopped, \(s["pointsMatched"] ?? 0) of \(s["pointsGiven"] ?? 0) points could be found in its own words" : "Stand kept its own place in the talk",
             "Memory: \(log.first { $0.type == "memory" }?.detail ?? "not recorded"). Its brain passed it the sheet that stands in for the rest \(log.filter { $0.type == "sheet" }.count) times",
             "Estimated cost: $\(s["estimatedCostUsd"] ?? 0) (\(s["costBasis"] ?? "no basis"))",
-        ]
+        ] + (s["pagesShown"] == nil ? [] : [
+            "The screen: \(s["pagesShown"] ?? 0) pages came up and \(s["pagesFailed"] ?? 0) did not. The audience asked for a page \(s["pagesAsked"] ?? 0) times, and for the page to be scrolled \(s["scrollsAsked"] ?? 0) times. Inside sections the page moved down with the voice \(s["pageMovedWithTheVoice"] ?? 0) times (\(s["pageMovesFailed"] ?? 0) failed). The talk's own page went back up under Stand's voice \(s["pagesBackWithTheVoice"] ?? 0) times",
+        ]) + [
+            s["watchAsked"] == nil ? "No brain kept watch over the talk"
+                : "A brain kept watch over the talk: asked \(s["watchAsked"] ?? 0) times, it said something other than \"nothing\" \(log.filter { ["watch_said", "talk_held", "talk_released", "watch_stale"].contains($0.type) }.count) times, of which \(s["watchTooLate"] ?? 0) came too late to act on. Its slowest answer took \(s["watchSlowestSeconds"] ?? 0) s",
+            !log.contains { $0.type == "ear" } ? "No ear listened to the short sounds made while Stand spoke: a sound stopped it once 0.6 seconds of it was loud, and not otherwise"
+                : "An ear listened to the short sounds made while Stand spoke: \(s["earShortSounds"] ?? 0) of them. It took \(s["earNoises"] ?? 0) for a noise, put \(s["earAsked"] ?? 0) to its listening model as words, and heard a call for Stand in \(s["earCalls"] ?? 0), for which Stand was stopped. The model's slowest answer took \(s["earSlowestSeconds"] ?? 0) s",
+        ] + (utterances.contains { $0.asExpected != nil }
+            ? ["\(utterances.filter { $0.asExpected == true }.count) of the \(utterances.filter { $0.asExpected != nil }.count) lines that say what should become of them went as they say"] : [])
+        // The screen, against Stand's own sound: a page has to be up before Stand speaks about
+        // it, and must not change under a sentence.
+        func speaking(at t: Double) -> Bool {
+            let started = log.last { $0.type == "stand_start" && $0.t <= t }?.t
+            let stopped = log.last { $0.type == "stand_stop" && ($0.at ?? $0.t) <= t }.map { $0.at ?? $0.t }
+            return started.map { $0 > (stopped ?? -1) } ?? false
+        }
+        var screenTable = [(t: Double, row: String)]()
+        for e in log where ["screen_shown", "screen_failed"].contains(e.type) {
+            let asked = log.last { $0.type == "screen_moving" && $0.t <= e.t }?.t ?? e.t
+            let onRequest = log.contains { $0.type == "page_asked" && $0.t <= asked && asked - $0.t < 0.05 }
+            let back = log.contains { $0.type == "screen_back" && $0.t <= asked && asked - $0.t < 0.05 }
+            let next = log.first { $0.type == "stand_start" && $0.t >= e.t }.map { String(format: "%.1f s after it", $0.t - e.t) } ?? "not again"
+            screenTable.append((asked, "| \(clock(asked)) | \(onRequest ? "the audience" : back ? "the talk, going back to its own page" : "the talk") | \(e.type == "screen_shown" ? "came up" : "DID NOT come up") | \(e.detail ?? "") | \(speaking(at: asked) ? "yes" : "no") | \(next) |"))
+        }
+        // Inside a section the page follows the voice down. A move is recorded once it has been looked at, about 0.7 s after it began.
+        for e in log where ["screen_scrolled", "screen_scroll_failed"].contains(e.type) {
+            let began = e.t - 0.7
+            screenTable.append((began, "| \(clock(began)) | the voice, inside a section | \(e.type == "screen_scrolled" ? "moved down" : "DID NOT move") | \(e.detail ?? "") | \(speaking(at: began) ? "yes" : "no") | was speaking |"))
+        }
+        for e in log where e.type == "scroll_asked" {
+            let answer = log.first { $0.type == "scroll_answer" && $0.t >= e.t }
+            let moved = answer.map { !($0.detail ?? "").hasPrefix("The page did not move") } ?? false
+            let next = answer.flatMap { a in log.first { $0.type == "stand_start" && $0.t >= a.t }.map { String(format: "%.1f s after it", $0.t - a.t) } } ?? "not again"
+            screenTable.append((e.t, "| \(clock(e.t)) | the audience | \(moved ? "scrolled \(e.detail ?? "")" : "DID NOT scroll") | \(String((answer?.detail ?? "").prefix(110))) | \(speaking(at: e.t) ? "yes" : "no") | \(next) |"))
+        }
+        let screenRows = screenTable.sorted { $0.t < $1.t }.map(\.row)
+        let screenPart = screenRows.isEmpty ? "" : """
+
+        ## The screen
+
+        | Asked for at | By | What happened | What | Was Stand speaking? | Stand next spoke |
+        |---|---|---|---|---|---|
+        \(screenRows.joined(separator: "\n"))
+
+        A page the talk asks for goes up between sections, so Stand should not be speaking then.
+        A page the audience asks for, or a scroll, may happen while Stand is saying that it will do it.
+        Inside a section the page follows the voice down, while Stand speaks.
+        "Going back to its own page": Stand went on with the talk under a page someone had asked for, and the talk's page was put back under its voice.
+        The pictures of the screen, as it was each time, are in this folder.
+
+        """
+        // What the watch and the hand that follows the mouth did, in order.
+        let watchRows = log.filter { ["watch_said", "watch_stale", "watch_unclear", "talk_held", "talk_released", "talk_stopped", "place_moved", "screen_back"].contains($0.type) }.map { e -> String in
+            let what = ["watch_said": "the watch said", "watch_stale": "the watch was too late with", "watch_unclear": "the watch could not be followed",
+                        "talk_held": "the talk waits", "talk_released": "the talk goes on", "talk_stopped": "Stand was stopped", "place_moved": "the place in the talk moved",
+                        "screen_back": "the talk's own page went back up"][e.type] ?? e.type
+            return "| \(clock(e.t)) | \(what) | \(e.detail ?? "") | \(speaking(at: e.t) ? "yes" : "no") |"
+        }
+        let watchPart = watchRows.isEmpty ? "" : """
+
+        ## The watch, and the hand that follows the mouth
+
+        | At | What | | Was Stand speaking? |
+        |---|---|---|---|
+        \(watchRows.joined(separator: "\n"))
+
+        """
         let rows = utterances.map { u -> String in
             if u.kind == "note" {
                 let then = u.standWasSpeaking ? "n/a" : u.repliedAfter.map { String(format: "spoke after %.1f s", $0) } ?? "said nothing"
-                return "| \(clock(u.start)) | \(u.label) (a note, not spoken) | \(u.standWasSpeaking ? "was talking" : "was not talking") | \(then) |"
+                return "| \(clock(u.start)) | \(u.label) (a note, not spoken) | \(u.standWasSpeaking ? "was talking" : "was not talking") | \(then) | |"
             }
             let stopped = !u.standWasSpeaking ? "was not talking"
                 : u.stoppedAfter.map { String(format: "stopped after %.1f s", $0) } ?? "kept talking"
             let replied = u.standWasSpeaking && u.stoppedAfter == nil ? "n/a"
                 : u.repliedAfter.map { String(format: "replied after %.1f s", $0) } ?? "no reply"
-            return "| \(clock(u.start)) | \(u.label) | \(stopped) | \(replied) |"
+            let expected = u.asExpected.map { $0 ? "yes: \(u.expect ?? "")" : "NO: it should have been \"\(u.expect ?? "")\"" } ?? ""
+            return "| \(clock(u.start)) | \(u.label) | \(stopped) | \(replied) | \(expected) |"
         }
+        // What the ear made of each short sound, in order.
+        let earRows = log.filter { ["ear_noise", "ear_nothing", "ear_unclear", "ear_call", "ear_overtaken", "ear_slow", "ear_failed", "ear_off"].contains($0.type) }.map { e -> String in
+            let what = ["ear_noise": "a noise", "ear_nothing": "words, and no call for Stand", "ear_unclear": "its listening model could not be followed",
+                        "ear_call": "someone calling for Stand: Stand was stopped", "ear_overtaken": "a call, but the sound had gone on and stopped Stand by itself",
+                        "ear_slow": "a call, heard too late to act on", "ear_failed": "its listening model could not be asked", "ear_off": "the talk goes on without the ear"][e.type] ?? e.type
+            return "| \(clock(e.t)) | \(what) | \(e.detail ?? "") |"
+        }
+        let earPart = earRows.isEmpty ? "" : """
+
+        ## The ear
+
+        | At | What it made of a short sound | |
+        |---|---|---|
+        \(earRows.joined(separator: "\n"))
+
+        A short sound is one made while Stand was speaking that was loud for less than 0.6 seconds, so that it did not stop Stand by itself.
+
+        """
         let said = utterances.map { "**\($0.label)** at \(clock($0.start)): \"\($0.text)\"\n\n> \($0.standSaid.isEmpty ? "(nothing)" : $0.standSaid)" }
 
         let report = """
@@ -736,13 +939,13 @@ enum Rehearsal {
 
         ## What the audience did
 
-        | When | What | Stand | Then |
-        |---|---|---|---|
+        | When | What | Stand | Then | As the script expects? |
+        |---|---|---|---|---|
         \(rows.joined(separator: "\n"))
 
         For a listening noise such as "mm-hm", "kept talking" is the right result. A note is
         text passed to Stand by its human; the audience hears nothing of it.
-
+        \(screenPart)\(watchPart)\(earPart)
         ## What Stand said next
 
         Text is grouped by when it arrived, which can run slightly ahead of when it was heard.

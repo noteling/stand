@@ -1,0 +1,1 @@
+The audience can now see {showing}: the page of section {number}, "{title}". Say in a few words that it is up, and answer what they asked about it. Then stop. Do not go on with the talk: its own page is not on the screen now. You will be told when it is back.

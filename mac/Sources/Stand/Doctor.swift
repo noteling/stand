@@ -52,6 +52,8 @@ enum Doctor {
         for status in LinkedRepos.statuses(root: root, sources: library.sources) { lines.append("  \(status.line())") }
         let brief = Project.brief(root: root)
         lines.append("Brief: \(brief.isEmpty ? "none" : "\(brief.count) characters")")
+        // A talk's pages can go up in the person's own browser. Two things have to be allowed for that, and neither by Stand.
+        lines.append("Pages in a browser: \(BrowserEvents.standing())")
         let runs = ((try? FileManager.default.contentsOfDirectory(atPath: root.appendingPathComponent("runs").path)) ?? []).filter { !$0.hasPrefix(".") }.sorted()
         lines.append("Sessions kept: \(runs.count)\(runs.last.map { ", the last one \($0)" } ?? "")")
         if let spend = Spend.total(root: root).line { lines.append("  \(spend)") }

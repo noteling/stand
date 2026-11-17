@@ -102,6 +102,36 @@ struct PanelView: View {
             // No talk: Stand sits in the meeting, and speaks when spoken to or when the brief gives it a reason.
             Text("None: join the discussion").tag("")
         }
+        if controller.talkShowsPages, controller.phase == .idle {
+            // Where the pages go up: Stand's own window needs nothing allowed; Chrome is the
+            // person's own, with what they are signed in to.
+            Picker("Pages", selection: $controller.pagesInChrome) {
+                Text("In a window of Stand's own").tag(false)
+                Text("In Chrome").tag(true)
+            }
+            // The one thing its human has to do for a talk with pages, said before it starts.
+            HStack(alignment: .firstTextBaseline) {
+                Text(controller.pagesInChrome ? "Stand opens a window in your Chrome for this talk's pages. Share that window in the call."
+                     : "This talk shows pages, in a window of their own. Share that window in the call.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 4)
+                Button("Open it") { controller.showScreenNow() }
+                    .buttonStyle(.link)
+                    .font(.caption)
+            }
+            if !controller.talkPagesMissing.isEmpty {
+                // Nothing is asked: Stand gives such a section without its page, and says so.
+                let missing = controller.talkPagesMissing
+                Text((missing.count == 1 ? "One of its pages is not there, and that section will be given without it. " : "\(missing.count) of its pages are not there, and those sections will be given without them. ") + missing.joined(separator: " "))
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                    .lineLimit(5)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .help(missing.joined(separator: "\n"))
+            }
+        }
         if !controller.voices.isEmpty { voiceRow }
 
         VStack(alignment: .leading, spacing: 4) {
@@ -220,17 +250,20 @@ struct PanelView: View {
                 }
             }
             Divider()
+            // An address is one of two things, and only its human knows which: a repository
+            // Stand fetches by itself, or a page it reads through their browser, signed in as they are.
+            TextField("A GitHub repository's address, or a page's", text: $repository)
+                .textFieldStyle(.roundedBorder)
             HStack {
-                TextField("github.com/owner/repository", text: $repository)
-                    .textFieldStyle(.roundedBorder)
-                    .onSubmit(addRepository)
-                Button("Add", action: addRepository)
-                    .disabled(repository.trimmingCharacters(in: .whitespaces).isEmpty)
+                Button("Add repository", action: addRepository)
+                Button("Add page", action: addPage)
+                Spacer()
             }
+            .disabled(repository.trimmingCharacters(in: .whitespaces).isEmpty)
             HStack {
                 Button("Add a folder…") { controller.addFolder() }
-                Button(controller.checkingSources ? "Checking…" : "Check now") { controller.refreshSources(check: true) }
-                    .disabled(controller.checkingSources)
+                Button(controller.checkingSources || controller.readingPages ? "Checking…" : "Check now") { controller.checkSources() }
+                    .disabled(controller.checkingSources || controller.readingPages)
                 Spacer()
             }
             if let message = controller.sourcesMessage {
@@ -245,6 +278,10 @@ struct PanelView: View {
         if controller.addRepository(repository) { repository = "" }
     }
 
+    private func addPage() {
+        if controller.addPage(repository) { repository = "" }
+    }
+
     // MARK: During the meeting
 
     @ViewBuilder private var duringTheMeeting: some View {
@@ -253,6 +290,27 @@ struct PanelView: View {
             line("Room", controller.roomText)
         }
         .frame(maxWidth: .infinity, minHeight: 64, alignment: .topLeading)
+
+        if let screen = controller.screenSays {
+            // What last came of asking the screen for a page: what the audience sees, or that it did not change.
+            Text(screen)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .truncationMode(.tail)
+                .help(screen)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+
+        if let watch = controller.watchSays {
+            // What the brain's watch last changed: the talk waits, goes on, or has moved to another section.
+            Text(watch)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .help(watch)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
 
         if controller.cue != nil || controller.sheet != nil {
             // What its brain, following the meeting, has put in front of it. Stand decides what to do with it.

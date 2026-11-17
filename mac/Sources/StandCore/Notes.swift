@@ -1,8 +1,9 @@
 import Foundation
 
-/// One place Stand's notes come from: a folder on this Mac, or a GitHub repository kept
-/// as a copy on this Mac (`LinkedRepos`). brain.json lists them under "sources"; the
-/// project's own `context/` folder is always the first.
+/// One place Stand's notes come from: a folder on this Mac, a GitHub repository kept as a
+/// copy on this Mac (`LinkedRepos`), or a page read from its human's browser and kept as a
+/// copy (`PageCopies`). brain.json lists them under "sources"; the project's own
+/// `context/` folder is always the first.
 public struct NotesSource: Sendable {
     /// What the brain sees in front of each file's path, and what the panel shows.
     public var name: String
@@ -10,6 +11,8 @@ public struct NotesSource: Sendable {
     public var folder: URL
     /// Set when it is a GitHub repository.
     public var repo: RepoLink?
+    /// Set when it is the copy of a page read from a browser: the page's address.
+    public var page: URL?
     /// The project's own notes folder. Its top-level README.md describes the folder and is not a note.
     public var isBuiltIn = false
     /// Where it is, in words, for the panel: "~/Documents/notes" or "github.com/acme/handbook, docs".
@@ -56,8 +59,15 @@ public struct NotesSource: Sendable {
                 } catch {
                     problems.append("brain.json: the source \"\(repo)\" can't be used. \(error)")
                 }
+            } else if let page = entry["page"], !page.isEmpty {
+                guard let address = PageCopies.address(page) else {
+                    problems.append("brain.json: the source \"\(page)\" is not the address of a page.")
+                    continue
+                }
+                sources.append(NotesSource(name: unique(entry["name"] ?? PageCopies.name(for: address)), folder: PageCopies.folder(for: address, root: root).standardizedFileURL,
+                                           page: address, place: PageCopies.short(address), index: index))
             } else {
-                problems.append("brain.json: source \(index + 1) names neither a \"folder\" nor a \"repo\".")
+                problems.append("brain.json: source \(index + 1) names neither a \"folder\", a \"repo\" nor a \"page\".")
             }
         }
         return (sources, problems)

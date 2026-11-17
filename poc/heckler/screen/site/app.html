@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Runbook: the label printer - Parcel Desk</title>
+<!--
+  A page built the way a web app builds one, for testing Stand's screen on pages it did
+  not draw. What is awkward about it is on purpose:
+    - the window itself never scrolls: the words are in a panel that scrolls inside it;
+    - a toolbar sticks to the top of that panel;
+    - the headings of the sections are not h2 elements but things that say they are headings;
+    - the menu beside the panel scrolls by itself and has a heading of its own.
+  Parcel Desk is made up.
+-->
+<style>
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  body { display: flex; flex-direction: column; font: 15px/1.6 -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1f2328; background: #fff; }
+  header.app { flex: none; height: 48px; display: flex; align-items: center; gap: 20px; padding: 0 18px; background: #24292f; color: #fff; }
+  header.app b { font-size: 16px; }
+  header.app span { opacity: 0.8; font-size: 14px; }
+  .shell { flex: 1; display: flex; min-height: 0; }
+  .menu { flex: none; width: 230px; overflow-y: auto; background: #f6f8fa; border-right: 1px solid #d0d7de; padding: 12px 16px; box-sizing: border-box; font-size: 14px; }
+  .menu [role="heading"] { font-weight: 600; margin: 10px 0 6px; }
+  .menu a { display: block; padding: 3px 0; color: #0969da; text-decoration: none; }
+  .pane { flex: 1; overflow-y: auto; min-width: 0; }
+  .toolbar { position: sticky; top: 0; z-index: 5; height: 44px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; background: #fff; border-bottom: 1px solid #d0d7de; font-size: 13px; color: #656d76; }
+  article { max-width: 620px; padding: 22px 32px 60px; }
+  h1 { font-size: 27px; line-height: 1.2; margin: 0 0 10px; }
+  .section { font-size: 20px; font-weight: 600; margin: 32px 0 8px; }
+  ol { padding-left: 22px; }
+  ol li { margin: 10px 0; }
+  .warn { background: #fff8c5; border: 1px solid #d4a72c; border-radius: 6px; padding: 9px 13px; margin: 12px 0; }
+  code { font: 13px ui-monospace, Menlo, monospace; background: #f6f8fa; padding: 1px 4px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header class="app"><b>Parcel Desk</b><span>Parcels</span><span>Shelves</span><span>Runbooks</span><span>Settings</span></header>
+
+<div class="shell">
+  <aside class="menu">
+    <div role="heading" aria-level="2">Runbooks</div>
+    <a href="#">The label printer</a>
+    <a href="#">The tablet at the desk</a>
+    <a href="#">A parcel that cannot be found</a>
+    <a href="#">The nightly backup</a>
+    <a href="wiki.html">How Parcel Desk works</a>
+  </aside>
+
+  <section class="pane">
+    <div class="toolbar"><span>Runbooks / The label printer</span><span>Last edited on Tuesday · Edit · History</span></div>
+    <article>
+      <h1>Runbook: the label printer</h1>
+      <p>The label printer behind the front desk stops printing about once a month. This runbook says what to do, in order. It takes about four minutes, and nothing in it needs a tool.</p>
+
+      <div class="section" role="heading" aria-level="2">Before you start</div>
+      <p>Tell the receptionist that labels will stop for a few minutes, so that parcels arriving in the meantime are put to one side and not on a shelf. A parcel on a shelf without a label is the one that goes missing.</p>
+
+      <div class="section" role="heading" aria-level="2">Restarting the printer</div>
+      <p>Do these in order. Most of the time the printer is back after the third step.</p>
+      <ol>
+        <li>Switch the printer off with the switch at the back, and wait ten seconds. The print head has to cool down before the printer will reset itself, and switching it straight back on does nothing.</li>
+        <li>Open the lid and take the roll of labels out. Look at the black rubber roller underneath: a label stuck to the roller is the cause nine times in ten. Peel it off slowly, in one piece.</li>
+        <li>Put the roll back with the labels facing up, and feed the first label under the two green guides until its edge shows at the front of the printer. Close the lid until it clicks on both sides.</li>
+        <li>Switch the printer on, and hold the feed button for three seconds, until the light turns from orange to green. This makes the printer measure the length of a label again, which it forgets when the roll is changed.</li>
+      </ol>
+      <div class="warn">Do not pull a jammed label out from the front. It tears, and the piece left behind has to be taken out by the supplier.</div>
+      <ol start="5">
+        <li>Print a test label from the settings page of Parcel Desk, under <code>Printer</code>. The test label has the short number 0000 and today's date on it.</li>
+        <li>If the number on the test label is cut off at one side, run the alignment from the same settings page. It prints four labels and asks which one looks right.</li>
+        <li>Print the labels that were waiting: Parcel Desk keeps them in a queue, and shows a button for the queue on the front page as soon as the printer answers again.</li>
+        <li>Tell the receptionist that labels are back, and help label the parcels that were put to one side, oldest first.</li>
+      </ol>
+
+      <div class="section" role="heading" aria-level="2">If it still does not print</div>
+      <p>Take the spare printer from the cupboard under the desk and plug it into the same cable. Parcel Desk finds it by itself within a minute. Then write to the supplier, whose address is on the sticker under the printer, and say which light is on.</p>
+
+      <div class="section" role="heading" aria-level="2">After the incident</div>
+      <p>Write one line in the mailroom channel: when it stopped, what was wrong, and how long labels were off. Three stops in a month means the roller is worn, and the supplier replaces it without charge.</p>
+    </article>
+  </section>
+</div>
+
+</body>
+</html>
