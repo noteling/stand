@@ -198,6 +198,9 @@ Checked from the packaged app on this Mac, pointed at an empty folder as its own
 
 ### Sitting in a discussion
 
+Stand can also provide voice and turn timing for a continuing Synthetics employee, which owns the substantive
+answers and commitments. This is an explicit optional mode; see [Synthetics integration](docs/synthetics.md).
+
 Stand does not have to give a talk. With **None: join the discussion** chosen, it is one of the people in the meeting. It listens, and most of the time it says nothing, as anyone in a meeting does.
 
 It speaks when:

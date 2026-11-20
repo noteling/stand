@@ -311,7 +311,19 @@ public final class StandSession {
     private let root: URL
     private let settings: Settings
     private let queue = DispatchQueue(label: "stand.session")
-    private var live: GeminiLive?
+    private var live: VoiceConnection?
+    private let brainFactory: (() throws -> Brain?)?
+    private let voiceFactory: ((@escaping (LiveEvent) -> Void) -> VoiceConnection)?
+    private let voiceKey: (() throws -> String)?
+    private var employeeIdentity: EmployeeVoiceIdentity?
+    private var employeeGate = EmployeeSpeechGate()
+    private var employeeFragments = ""
+    private var employeePlaybackText = ""
+    private var employeeBlockedThisTurn = false
+    private var employeePlaybackGeneration = 0
+    private var employeeAudioWasQueued = false
+    public private(set) var speakerName = "Stand"
+    private var employeeMode: Bool { brain is EmployeeBrain }
     private var timer: DispatchSourceTimer?
     private var eventsFile: FileHandle?
     private var beginText = "", carryOnText = "", finishText = "", hushText = ""
@@ -513,9 +525,13 @@ public final class StandSession {
     /// sent as said; this is how it can be told where it was actually cut off.
     private var spokenPieces = [(startsAt: Double, text: String)]()
 
-    public init(root: URL, label: String, settings: Settings = Settings()) {
+    public init(root: URL, label: String, settings: Settings = Settings(),
+                brainFactory: (() throws -> Brain?)? = nil,
+                voiceFactory: ((@escaping (LiveEvent) -> Void) -> VoiceConnection)? = nil,
+                voiceKey: (() throws -> String)? = nil) {
         self.root = root
         self.settings = settings
+        self.brainFactory = brainFactory; self.voiceFactory = voiceFactory; self.voiceKey = voiceKey
         marker = SpeechMarker(level: settings.roomVoiceLevel, endsAfter: settings.ownActivityEndsAfter)
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH-mm-ss"
@@ -551,10 +567,13 @@ public final class StandSession {
     public func open() async throws {
         // Linked repositories are checked first, so the notes are as they stand on GitHub now.
         // The key first: without it nothing else is worth starting.
-        let key = try Project.geminiKey(root: root)
+        let key = try voiceKey?() ?? Project.geminiKey(root: root)
         voice = try Voices.named(settings.voice, root: root).name
         let brainSettings = BrainSettings.load(root: root)
-        let library = NotesLibrary(root: root, settings: brainSettings)
+        if brainSettings.connectionMode == "synthetics", !settings.attending {
+            throw StandError("Synthetics mode currently joins a discussion. Choose Attend, without a prepared Stand talk.")
+        }
+        let library = brainSettings.connectionMode == "synthetics" ? NotesLibrary(sources: []) : NotesLibrary(root: root, settings: brainSettings)
         // The brain is a program of its own. If the session does not open after all (no
         // credit, a refused key), it must not be left running.
         var opened = false
@@ -570,8 +589,17 @@ public final class StandSession {
                 live?.close()
             }
         }
-        let checked = await LinkedRepos.refresh(root: root, sources: library.sources, waitingAtMost: settings.linkedCheckSeconds)
-        brain = try BrainFactory.make(root: root)
+        let checked = brainSettings.connectionMode == "synthetics" ? [] : await LinkedRepos.refresh(root: root, sources: library.sources, waitingAtMost: settings.linkedCheckSeconds)
+        if let brainFactory { brain = try brainFactory() }
+        else { brain = try BrainFactory.make(root: root, brief: settings.brief) }
+        if let employee = brain as? EmployeeBrain {
+            employee.onMeetingEnded = { [weak self] reason in
+                self?.queue.async {
+                    guard let self, self.isOpen, !self.isClosed else { return }
+                    self.finish("The employee meeting ended: " + reason)
+                }
+            }
+        }
         brain?.onAsk = { [weak self] ask in await self?.ask(ask) ?? false }
         brain?.onActivity = { [weak self] what in
             self?.queue.async {
@@ -584,23 +612,31 @@ public final class StandSession {
         // The prompter starts at the same time, as a process of its own. In a discussion it
         // follows the meeting; in a talk it keeps track of where the talk stands and of
         // what has passed with the audience, which Stand itself forgets after a few minutes.
-        prompter = settings.hasPrompter ? try? BrainFactory.makePrompter(root: root, talk: settings.attending ? nil : settings.talk) : nil
+        prompter = !employeeMode && settings.hasPrompter ? try? BrainFactory.makePrompter(root: root, talk: settings.attending ? nil : settings.talk) : nil
         let prompterStarting = prompter.map { starting in Task { await starting.start() } }
         // So does the watch over a talk: a third process, with the plan of the talk and nothing else.
-        watch = settings.hasWatch && !settings.attending && settings.handsSections && !settings.talk.isEmpty
+        watch = !employeeMode && settings.hasWatch && !settings.attending && settings.handsSections && !settings.talk.isEmpty
             ? try? BrainFactory.makeWatch(root: root, talk: settings.talk) : nil
         let watchStarting = watch.map { starting in Task { await starting.start() } }
         // The brain is got ready before the voice is told it has one. If it cannot be, Stand
         // goes without: better "I don't know" than "let me check" and then nothing.
         var brainProblem: String?
         if let starting = brain {
-            brainProblem = await Self.within(settings.brainStartSeconds) { await starting.start() }
-                ?? "it was not ready after \(Int(settings.brainStartSeconds)) seconds"
+            let startSeconds = starting is EmployeeBrain ? max(95, settings.brainStartSeconds) : settings.brainStartSeconds
+            brainProblem = await Self.within(startSeconds) { await starting.start() }
+                ?? "it was not ready after \(Int(startSeconds)) seconds"
             if brainProblem == "" { brainProblem = nil }
             if brainProblem != nil {
                 starting.stop()
+                // An employee cannot silently become Stand or a voice-only substitute.
+                if starting is EmployeeBrain { throw StandError(brainProblem!) }
                 brain = nil
             }
+        }
+        if let employee = brain as? EmployeeBrain {
+            guard let identity = employee.identity else { throw StandError("The employee supplied no meeting identity.") }
+            employeeIdentity = identity
+            speakerName = identity.name
         }
         var prompterProblem: String?
         if let prompterStarting {
@@ -629,7 +665,7 @@ public final class StandSession {
         // Asked only when the brain has the notes in front of it: too many to send whole,
         // it would have to read through them with its tools, which takes far too long here.
         let notes = library.current()
-        if let brain, !notes.isEmpty, notes.fits(within: brainSettings.docsStuffLimitChars),
+        if let brain, !(brain is EmployeeBrain), !notes.isEmpty, notes.fits(within: brainSettings.docsStuffLimitChars),
            let ask = try? Project.read("prompts/brain-outline.txt", root: root) {
             let said = await Self.within(settings.outlineSeconds) { try? await brain.answer(ask) }
             if case .some(.some(let text)) = said {
@@ -648,7 +684,8 @@ public final class StandSession {
             screen = nil
         }
         let instructions = try Project.instructions(root: root, talk: settings.talk, brief: settings.brief, canLookUp: brain != nil,
-                                                    notesOutline: outline, canAskHuman: settings.canAskHuman, screen: screen != nil)
+                                                    notesOutline: outline, canAskHuman: settings.canAskHuman, screen: screen != nil,
+                                                    identity: employeeIdentity)
         beginText = try Project.stageManagerBegin(root: root)
         carryOnText = try Project.stageManagerCarryOn(root: root)
         if !attending, settings.handsSections {
@@ -699,7 +736,7 @@ public final class StandSession {
         humanAskedSaySoText = try Project.read("prompts/human-asked-say-so.txt", root: root)
         humanAnswerText = try Project.read("prompts/human-answer.txt", root: root)
         humanNoAnswerText = try Project.read("prompts/human-no-answer.txt", root: root)
-        let askHumanTool = settings.canAskHuman ? try Project.read("prompts/tool-ask-my-human.txt", root: root) : nil
+        let askHumanTool = settings.canAskHuman && !employeeMode ? try Project.read("prompts/tool-ask-my-human.txt", root: root) : nil
         lateAnswerText = try Project.read("prompts/lookup-late-answer.txt", root: root)
 
         // In a talk, an ear for the short sounds that do not stop Stand. It needs nothing
@@ -714,16 +751,21 @@ public final class StandSession {
             calledHeardText = try Project.read("prompts/stage-manager-called-heard.txt", root: root)
         }
 
-        let live = GeminiLive { [weak self] event in
+        let onEvent: (LiveEvent) -> Void = { [weak self] event in
             self?.queue.async { self?.handle(event) }
         }
+        let live: VoiceConnection = voiceFactory?(onEvent) ?? GeminiLive(onEvent: onEvent)
         self.live = live
-        let lookUpTool = try brain.map { _ in try Project.read("prompts/tool-look-it-up.txt", root: root) }
+        let lookUpTool = try brain.map { _ in
+            employeeMode ? "Ask the Synthetics employee for every substantive answer, introduction, opinion, correction or commitment before speaking. Supply the current question or proposed contribution; wait silently for the employee's response. Never answer from your own knowledge."
+                : try Project.read("prompts/tool-look-it-up.txt", root: root)
+        }
         let quietTool = try Project.read(attending ? "prompts/attend-tool-nothing-to-say.txt" : "prompts/tool-nothing-to-say.txt", root: root)
         instructionsCharacters = instructions.count
         let memory = settings.memory(instructionsCharacters: instructions.count)
         try await live.connect(apiKey: key, instructions: instructions, model: model, voice: voice, lookUp: lookUpTool, quiet: quietTool, askHuman: askHumanTool,
-                               showPage: showPageTool, scrollPage: scrollPageTool, floor: !attending, marksActivity: settings.marksActivity, context: memory)
+                               showPage: showPageTool, scrollPage: scrollPageTool, floor: !attending, marksActivity: settings.marksActivity, context: memory,
+                               employeeResponses: employeeMode)
 
         try queue.sync {
             t0 = Date() // session time counts from the moment the voice model is connected
@@ -1651,6 +1693,7 @@ public final class StandSession {
         lastRoomVoice = t
         nudged = false
         if !roomSpeaking {
+            if employeeMode { revokeEmployeeSpeech() }
             roomSpeaking = true
             roomBeganAt = t
             record("room_start")
@@ -1663,6 +1706,7 @@ public final class StandSession {
         queue.async {
             guard self.isOpen, !self.isClosed else { return }
             self.hushed = true
+            if self.employeeMode { self.revokeEmployeeSpeech() }
             self.hushedAt = self.now
             self.held = nil
             self.cutSpeech(at: self.now)
@@ -1683,6 +1727,8 @@ public final class StandSession {
             guard self.isOpen, !self.isClosed else { return }
             self.notesPassed += 1
             self.record("told", detail: note)
+            (self.brain as? EmployeeBrain)?.observe(.note(note))
+            if self.employeeMode { self.revokeEmployeeSpeech() }
             self.onUpdate?(.told(note))
             self.notesWaiting.append((note, self.now, .human))
             self.landNotes()
@@ -1704,19 +1750,29 @@ public final class StandSession {
         guard !isClosed else { return }
         switch event {
         case .audio(let pcm): standAudio(pcm)
-        case .heard(let text): addTranscript(.room, text)
+        case .heard(let text):
+            (brain as? EmployeeBrain)?.observe(.heard(text))
+            addTranscript(.room, text)
         case .said(let text):
+            if employeeMode {
+                (brain as? EmployeeBrain)?.observe(.spoken(text, played: false, cutAt: nil))
+                guard employeeGate.mayPlay else { employeeSpeechBlocked(); return }
+                employeeFragments += text
+            }
             // The words can arrive before the sound. In a discussion they wait with it.
             holdOpening()
             // Words in reply to a note wait with their sound, until it is known to be speech.
             if held != nil, !text.isEmpty { held?.text += text } else { addTranscript(.stand, text) }
         case .interrupted:
+            if employeeMode { revokeEmployeeSpeech() }
             turnOpenSince = nil
             interrupted()
             saidThisTurn = false
             spokeThisTurn = false
             piecesThisTurn = 0
         case .turnComplete:
+            defer { if employeeMode { employeeTurnEnded() } }
+            employeeBlockedThisTurn = false
             turnOpenSince = nil
             releaseStart(why: "the model's turn was over")
             turnCompleteAt = now
@@ -1779,6 +1835,11 @@ public final class StandSession {
         case .scrollPage(let id, let direction):
             scrollPage(id: id, asked: direction)
         case .askHuman(let id, let question):
+            if employeeMode {
+                live?.respond(askHuman: id, result: "The employee owns questions and decisions. Use look_it_up instead.", aloud: false)
+                employeeSpeechBlocked()
+                return
+            }
             // "I'd have to check that with Morgan" must be heard, short as it is.
             if let reply = held, reply.opening { releaseHeld() }
             let question = Self.oneLine(question)
@@ -1797,6 +1858,7 @@ public final class StandSession {
             reported.thoughts += thoughts
             record("usage", detail: "given \(promptText) text and \(promptAudio) audio tokens; produced \(responseAudio) audio, \(responseText) text, \(thoughts) of thinking")
         case .reconnected(let why):
+            if employeeMode { revokeEmployeeSpeech() }
             record("reconnected", detail: why)
             turnOpenSince = nil
             releaseStart(why: "the connection was replaced")
@@ -1811,6 +1873,14 @@ public final class StandSession {
     /// Stand asked its brain something. The answer goes back to the voice model as the
     /// point to make; Stand says it in its own words.
     private func lookUp(id: String, question: String) {
+        if employeeMode {
+            revokeEmployeeSpeech()
+            guard lookUps.isEmpty else {
+                live?.respond(lookUp: id, answer: "No response is available yet. Stay silent.", quietly: true)
+                return
+            }
+            employeeGate.request(id)
+        }
         // "Let me check that" is short enough to pass for a stray word. It is not one: play it.
         if let reply = held, reply.opening { releaseHeld() }
         record("lookup", detail: question)
@@ -1847,6 +1917,7 @@ public final class StandSession {
     /// The brain is taking longer than a pause in a conversation. Stand's tool call is
     /// answered with that, so it can say so and move on.
     private func stillLooking(_ id: String) {
+        if employeeMode { return } // No invented filler or fallback while the employee is thinking.
         guard !isClosed, let lookUp = lookUps[id], !lookUp.told else { return }
         if !lookUp.waitedLonger, let active = brainActiveAt, active > lookUp.asked {
             lookUps[id]?.waitedLonger = true
@@ -1863,6 +1934,15 @@ public final class StandSession {
 
     private func answerLookUp(_ id: String, _ answer: String, asked: Double, note: String?) {
         guard !isClosed, let lookUp = lookUps.removeValue(forKey: id) else { return } // answered already
+        if employeeMode {
+            let hushedSince = hushedAt.map { $0 > asked } ?? false
+            guard note == nil, !hushedSince, employeeGate.authorize(id) else {
+                employeeGate.revoke()
+                live?.respond(lookUp: id, answer: "No current employee response. Stay silent; a new opportunity needs a new request.", quietly: true)
+                record("employee_response_unavailable", detail: note ?? "overtaken")
+                return
+            }
+        }
         let t = now
         record("lookup_answer", detail: String(format: "%.1f s: %@%@", t - asked, answer, note.map { " (\($0))" } ?? ""))
         onUpdate?(.lookedUp(answer, seconds: t - asked))
@@ -1919,6 +1999,7 @@ public final class StandSession {
             guard self.isOpen, !self.isClosed, let question = self.humanQuestions.removeValue(forKey: id) else { return }
             let answer = text.map(Self.oneLine).flatMap { $0.isEmpty ? nil : $0 }
             self.record("human_answer", detail: answer ?? "no answer")
+            if let answer { (self.brain as? EmployeeBrain)?.observe(.note(answer)) }
             self.onUpdate?(.humanAnswered(id: id, answer: answer))
             let note = (answer.map { self.humanAnswerText.replacingOccurrences(of: "{answer}", with: $0) } ?? self.humanNoAnswerText)
                 .replacingOccurrences(of: "{question}", with: question)
@@ -1977,6 +2058,7 @@ public final class StandSession {
     }
 
     private func standAudio(_ pcm: Data) {
+        if employeeMode, !employeeGate.mayPlay { employeeSpeechBlocked(); return }
         // Stand is answering the last utterance after all. If someone has begun to speak
         // meanwhile and the service has not been told, it is told now.
         if turnOpenSince != nil {
@@ -2025,6 +2107,10 @@ public final class StandSession {
     }
 
     private func play(_ pcm: Data) {
+        if employeeMode {
+            guard employeeGate.mayPlay else { employeeSpeechBlocked(); return }
+            employeeAudioWasQueued = true
+        }
         let t = now
         if standSegments.isEmpty, settings.echoSettle > 0 { deafUntil = t + settings.echoSettle }
         // The model sends speech faster than it is spoken, so keep a virtual playhead:
@@ -2439,7 +2525,7 @@ public final class StandSession {
                 let fresh = Self.oneLine(i == seenLines ? String(line.text.dropFirst(seenCharacters)) : line.text)
                 upTo = (i, line.text.count)
                 guard !fresh.isEmpty else { continue }
-                said.append("\(line.who == .stand ? "Stand" : "In the meeting"): \(fresh)")
+                said.append("\(line.who == .stand ? speakerName : "In the meeting"): \(fresh)")
                 characters += fresh.count
             }
         } else {
@@ -2850,8 +2936,45 @@ public final class StandSession {
 
     // MARK: Ending and writing the run
 
+    private func revokeEmployeeSpeech() {
+        let pending = employeeFragments.isEmpty ? employeePlaybackText : employeeFragments
+        if !pending.isEmpty {
+            (brain as? EmployeeBrain)?.observe(.spoken(pending, played: false, cutAt: now))
+        }
+        employeeFragments = ""
+        employeePlaybackText = ""
+        employeeBlockedThisTurn = false
+        employeeAudioWasQueued = false
+        employeePlaybackGeneration += 1
+        employeeGate.revoke()
+    }
+
+    private func employeeTurnEnded() {
+        let text = employeeFragments, generation = employeePlaybackGeneration
+        let delay = max(0, playUntil - now)
+        employeeFragments = ""
+        if !text.isEmpty, employeeAudioWasQueued, held == nil {
+            employeePlaybackText = text
+            queue.asyncAfter(deadline: .now() + delay) { [weak self] in
+                guard let self, !self.isClosed, self.employeePlaybackGeneration == generation else { return }
+                (self.brain as? EmployeeBrain)?.observe(.spoken(text, played: true, cutAt: nil))
+                self.employeePlaybackText = ""
+            }
+        }
+        employeeAudioWasQueued = false
+        employeeGate.voiceTurnEnded()
+    }
+
+    private func employeeSpeechBlocked() {
+        guard !employeeBlockedThisTurn else { return }
+        employeeBlockedThisTurn = true
+        record("employee_speech_blocked")
+        onUpdate?(.brainBusy("waiting for the employee's response"))
+    }
+
     private func finish(_ reason: String) {
         guard !isClosed else { return }
+        if employeeMode { revokeEmployeeSpeech() }
         isClosed = true
         timer?.cancel()
         timer = nil
@@ -2969,7 +3092,7 @@ public final class StandSession {
         var entries = events.compactMap { e in
             markers[e.type].map { (t: e.t, text: "_(\($0)\(e.type.hasPrefix("lookup") || ["cut_off_note", "told", "note_landed", "swallowed", "brain", "ask", "ask_answer", "sheet", "cue", "cue_dropped", "cue_held_back", "cue_overtaken", "memory", "human_asked", "human_answer", "nudge", "floor_too_early", "passed_over", "screen_shown", "screen_failed", "page_asked", "page_answer", "screen_follows", "screen_scrolled", "screen_scroll_failed", "scroll_asked", "scroll_answer", "watch", "watch_said", "watch_stale", "watch_unclear", "screen_back", "place_moved", "talk_held", "talk_released", "talk_stopped", "ear", "ear_noise", "ear_nothing", "ear_unclear", "ear_call", "ear_slow", "ear_failed", "ear_off"].contains(e.type) ? ": " + (e.detail ?? "") : ""))_") }
         }
-        entries += transcript.map { (t: $0.t, text: "**\($0.who == .stand ? "Stand" : "Room"):** \($0.text.trimmingCharacters(in: .whitespaces))") }
+        entries += transcript.map { (t: $0.t, text: "**\($0.who == .stand ? speakerName : "Room"):** \($0.text.trimmingCharacters(in: .whitespaces))") }
         let ordered = entries.enumerated().sorted { ($0.element.t, $0.offset) < ($1.element.t, $1.offset) }.map(\.element)
         let body = ordered.map { "- \(Self.clock($0.t)) \($0.text)" }.joined(separator: "\n")
         try "# Transcript\n\n\(body)\n".write(to: folder.appendingPathComponent("transcript.md"), atomically: true, encoding: .utf8)
