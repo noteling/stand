@@ -80,7 +80,12 @@ public final class SyntheticsBrain: EmployeeBrain, @unchecked Sendable {
         child.executableURL = URL(fileURLWithPath: executable)
         child.arguments = Array(command.dropFirst()) + ["--home", home, "floor", "attach", "--key-file", keyFile]
         // Preserve Floor's session refusal; this host process never promotes a session to owner.
-        var env = ProcessInfo.processInfo.environment
+        // The voice app's incidental provider environment must not reroute the
+        // employee or select API billing. Floor currently uses its saved CLI login.
+        var env = ProcessInfo.processInfo.environment.filter { key, _ in
+            !["ANTHROPIC_", "CLAUDE_CODE_", "OPENAI_", "CODEX_"].contains { key.hasPrefix($0) }
+        }
+        env.removeValue(forKey: "CLAUDECODE")
         env.removeValue(forKey: "SYNTHETICS_HOME")
         child.environment = env
         child.standardInput = stdin; child.standardOutput = stdout

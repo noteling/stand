@@ -26,7 +26,8 @@ def main():
         parser.error("--synthetics-source must hold the maintained Synthetics package")
     binary = (args.binary or root / "mac/.build/debug/Stand").resolve()
     env = {k: v for k, v in os.environ.items() if not k.startswith(("STAND_", "SYNTHETICS_"))}
-    env.update(PYTHONPATH=str(source), STAND_PROJECT_ROOT=str(root))
+    env.update(PYTHONPATH=str(source), STAND_PROJECT_ROOT=str(root),
+               ANTHROPIC_API_KEY="fixture-not-a-real-key", OPENAI_API_KEY="fixture-not-a-real-key")
 
     def run(command, **kwargs):
         result = subprocess.run([str(x) for x in command], env=env, cwd=str(root),

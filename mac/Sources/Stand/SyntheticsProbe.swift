@@ -162,7 +162,8 @@ enum SyntheticsProbe {
         defer { try? FileManager.default.removeItem(at: directory) }
         let script = directory.appendingPathComponent("floor.py")
         try #"""
-import json,sys
+import json,sys,os
+assert not any(key.startswith(("ANTHROPIC_","CLAUDE_CODE_","OPENAI_","CODEX_")) for key in os.environ)
 mode=sys.argv[1]
 def emit(**item):
     print(json.dumps(dict(v=1,**item)),flush=True)

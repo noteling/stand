@@ -34,6 +34,9 @@ Stand still uses its own configured Gemini voice account. The employee's reasoni
 usage belong to Synthetics. Floor currently requires its persistent Claude meeting executor; the
 configured gateway and Codex ordinary-work adapters do not yet provide that meeting capability.
 This integration does not change a live employee's model, settings, opt-in or service.
+The voice app's incidental provider routing/key environment is excluded from the Floor child; model access
+comes from the employee's saved CLI setup. An employee work session cannot launch this host adapter by
+stripping its own run fence through Stand.
 
 ## Who controls speech
 
