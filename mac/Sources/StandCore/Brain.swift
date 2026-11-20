@@ -33,6 +33,9 @@ public struct BrainAsk: Sendable {
 public struct BrainSettings {
     /// "api", "claudeCode", or "auto": the API when a key or a gateway is configured, the CLI otherwise.
     public var connectionMode = "auto"
+    public var syntheticsHome = ""
+    public var syntheticsKeyFile = ""
+    public var syntheticsPython = "/usr/bin/python3"
     public var model = "claude-sonnet-5-5"
     /// low, medium, high, xhigh or max. Low, because people are waiting.
     public var effort = "low"
@@ -98,6 +101,9 @@ public struct BrainSettings {
            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
             func text(_ key: String) -> String? { (json[key] as? String).flatMap { $0.isEmpty ? nil : $0 } }
             settings.connectionMode = text("connectionMode") ?? settings.connectionMode
+            settings.syntheticsHome = text("syntheticsHome") ?? ""
+            settings.syntheticsKeyFile = text("syntheticsKeyFile") ?? ""
+            settings.syntheticsPython = text("syntheticsPython") ?? settings.syntheticsPython
             settings.model = text("model") ?? settings.model
             settings.effort = text("effort") ?? settings.effort
             settings.prepareModel = text("prepareModel") ?? settings.prepareModel
@@ -200,8 +206,17 @@ public enum BrainFactory {
         return Project.setting("ANTHROPIC_API_KEY", root: root) != nil || !settings.apiBaseURL.isEmpty ? "api" : "claudeCode"
     }
 
-    public static func make(root: URL) throws -> Brain? {
+    public static func make(root: URL, brief: String? = nil) throws -> Brain? {
         let settings = BrainSettings.load(root: root)
+        if settings.connectionMode == "synthetics" {
+            guard !settings.syntheticsHome.isEmpty, !settings.syntheticsKeyFile.isEmpty else {
+                throw StandError("Synthetics mode needs syntheticsHome and syntheticsKeyFile in brain.json.")
+            }
+            return SyntheticsBrain(command: [NotesSource.expand(settings.syntheticsPython), "-m", "synthetics"],
+                                   home: NotesSource.expand(settings.syntheticsHome),
+                                   keyFile: NotesSource.expand(settings.syntheticsKeyFile),
+                                   brief: brief ?? Project.brief(root: root))
+        }
         let library = NotesLibrary(root: root, settings: settings)
         let key = Project.setting("ANTHROPIC_API_KEY", root: root)
         let mode = Self.mode(root: root)
@@ -224,7 +239,7 @@ public enum BrainFactory {
             }
             return ClaudeCodeBrain(settings: settings, executable: executable, library: library, instructions: instructions, root: root)
         default:
-            throw StandError("brain.json: connectionMode must be \"api\", \"claudeCode\" or \"auto\", not \"\(settings.connectionMode)\".")
+            throw StandError("brain.json: connectionMode must be \"api\", \"claudeCode\", \"synthetics\" or \"auto\", not \"\(settings.connectionMode)\".")
         }
     }
 

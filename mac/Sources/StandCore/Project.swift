@@ -181,7 +181,15 @@ public enum Project {
     /// `screen` says the talk is given with its pages on a screen (`Screen`). Without one,
     /// the lines of the talk that name pages are left out: Stand should not read of pages nobody will see.
     public static func instructions(root: URL, talk: String = "talks/introducing-stand.md", brief: String = "", canLookUp: Bool = false,
-                                    notesOutline: String? = nil, canAskHuman: Bool = false, screen: Bool = false) throws -> String {
+                                    notesOutline: String? = nil, canAskHuman: Bool = false, screen: Bool = false,
+                                    identity: EmployeeVoiceIdentity? = nil) throws -> String {
+        if let identity {
+            guard talk.isEmpty else { throw StandError("Synthetics mode currently joins a discussion; choose Attend, without a prepared Stand talk.") }
+            return try read("prompts/synthetics-voice.md", root: root)
+                .replacingOccurrences(of: "{name}", with: identity.name)
+                .replacingOccurrences(of: "{persona}", with: identity.persona)
+                .replacingOccurrences(of: "{aliases}", with: identity.aliases.joined(separator: ", "))
+        }
         let outline = try notesOutline.map { "\n\n" + (try read("prompts/notes-outline.md", root: root)).replacingOccurrences(of: "{outline}", with: $0) } ?? ""
         if talk.isEmpty {
             // What Stand does about a question it cannot answer depends on whether it has a brain to ask.

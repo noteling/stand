@@ -1,7 +1,7 @@
 import Foundation
 
 /// Something the voice model sent. Delivered on a background queue.
-public enum LiveEvent {
+public enum LiveEvent: Sendable {
     /// Stand's speech: mono 16-bit little-endian PCM at 24 kHz.
     case audio(Data)
     /// A fragment of what the room said, as the model transcribed it.
@@ -40,7 +40,27 @@ public enum LiveEvent {
 ///
 /// A connection lasts about ten minutes. Before the server drops it, it says so, and this
 /// class opens a new connection that resumes the same conversation and swaps it in.
-public final class GeminiLive {
+public protocol VoiceConnection: AnyObject {
+    func connect(apiKey: String, instructions: String, model: String, voice: String,
+                 lookUp: String?, quiet: String?, askHuman: String?, showPage: String?, scrollPage: String?,
+                 floor: Bool, marksActivity: Bool, context: (limit: Int, keep: Int)?, employeeResponses: Bool) async throws
+    func sendMicrophone(_ pcm: Data)
+    func activity(started: Bool)
+    func instruct(_ text: String)
+    func nudge(_ text: String)
+    func inform(_ text: String)
+    func respond(lookUp id: String, answer: String, quietly: Bool)
+    func respond(askHuman id: String, result: String, aloud: Bool)
+    func respond(showPage id: String, result: String)
+    func respond(scrollPage id: String, result: String)
+    func close()
+}
+
+public extension VoiceConnection {
+    func respond(lookUp id: String, answer: String) { respond(lookUp: id, answer: answer, quietly: false) }
+}
+
+public final class GeminiLive: VoiceConnection {
     public static let microphoneRate = 16_000.0
     public static let speechRate = 24_000.0
     static let floorTool = "open_the_floor"
@@ -101,7 +121,8 @@ public final class GeminiLive {
     /// talk without a screen, Stand does not get the tool.
     public func connect(apiKey: String, instructions: String, model: String = "gemini-3.8-live", voice: String = Voices.usual,
                         lookUp: String? = nil, quiet: String? = nil, askHuman: String? = nil, showPage: String? = nil, scrollPage: String? = nil, floor: Bool = true,
-                        marksActivity: Bool = false, context: (limit: Int, keep: Int)? = nil) async throws {
+                        marksActivity: Bool = false, context: (limit: Int, keep: Int)? = nil,
+                        employeeResponses: Bool = false) async throws {
         var components = URLComponents(string: "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent")!
         components.queryItems = [URLQueryItem(name: "key", value: apiKey)]
         url = components.url!
@@ -126,7 +147,7 @@ public final class GeminiLive {
                     "properties": ["question": ["type": "STRING", "description": "The question, as a full sentence, with any names or numbers the person mentioned."]],
                     "required": ["question"],
                 ],
-                "behavior": "NON_BLOCKING",
+                "behavior": employeeResponses ? "BLOCKING" : "NON_BLOCKING",
             ])
         }
         if let askHuman {

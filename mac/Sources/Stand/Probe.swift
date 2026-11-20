@@ -18,11 +18,15 @@ import StandCore
 /// --raw turns macOS voice processing (its echo cancellation) off; --no-system-audio turns
 /// the system audio tap off. Both exist to show what each contributes.
 enum Probe {
-    static let modes = ["connect", "selfhear", "otherapp", "tap", "brain", "sources", "doctor", "report", "marker", "spend", "prompter", "prepare", "voice", "screen", "page", "watch", "ear"]
+    static let modes = ["connect", "selfhear", "otherapp", "tap", "brain", "sources", "doctor", "report", "marker", "spend", "prompter", "prepare", "voice", "screen", "page", "watch", "ear", "synthetics"]
 
     static func run(mode: String, arguments args: [String]) async throws {
         guard modes.contains(mode) else {
             throw StandError("usage: Stand --probe connect | selfhear | otherapp | tap | sources | doctor | report | spend | marker <run> | ear <run> | prompter <run> | watch <run> | screen <talk.md> | page <address> | panel | brain \"question\" | prepare \"what the meeting is\" | voice [name …]  [--raw] [--no-system-audio] [--seconds N]")
+        }
+        if mode == "synthetics" {
+            try await SyntheticsProbe.run(arguments: args, root: Project.root())
+            return
         }
         if mode == "doctor" {
             print(Doctor.report(root: try Project.root()))

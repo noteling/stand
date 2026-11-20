@@ -1,0 +1,9 @@
+{
+  "description": "A Synthetics employee supplies each substantive answer; Stand only voices it. Use a temporary enabled Floor employee named Aster and a test brain configuration. Never point a fixture at a live employee.",
+  "maxMinutes": 1,
+  "gapSeconds": 1,
+  "discussion": [
+    {"voice": "Daniel", "say": "Aster, please introduce yourself.", "expect": "speaks", "replyWithinSeconds": 12, "mustSay": "Aster"},
+    {"voice": "Samantha", "say": "Aster, do you have your own memory?", "expect": "speaks", "replyWithinSeconds": 12, "mustSay": "memory"}
+  ]
+}
